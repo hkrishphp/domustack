@@ -7,7 +7,7 @@ import { createBrowserSupabaseClient } from "@/lib/supabase";
 
 const navItems = [
   {
-    href: "/",
+    href: "/search",
     label: "Find Contractors",
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

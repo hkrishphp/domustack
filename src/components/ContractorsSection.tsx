@@ -23,7 +23,7 @@ export default async function ContractorsSection() {
             </p>
           </div>
           <Link
-            href="#"
+            href="/search"
             className="inline-flex items-center gap-1.5 text-primary font-medium text-[15px] mt-2 hover:opacity-80"
           >
             View All

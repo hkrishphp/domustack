@@ -1,6 +1,22 @@
+"use client";
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function HeroSection() {
+  const router = useRouter();
+  const [service, setService] = useState("");
+  const [location, setLocation] = useState("");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (service.trim()) params.set("service", service.trim());
+    if (location.trim()) params.set("location", location.trim());
+    router.push(`/search?${params.toString()}`);
+  }
+
   return (
     <section className="py-[60px] pb-20">
       <div className="mx-auto max-w-[1200px] px-6 grid grid-cols-1 lg:grid-cols-2 gap-[60px] items-center">
@@ -14,7 +30,7 @@ export default function HeroSection() {
           </p>
 
           {/* Search Box */}
-          <div className="bg-card rounded-[var(--radius)] p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)] mb-8">
+          <form onSubmit={handleSubmit} className="bg-card rounded-[var(--radius)] p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)] mb-8">
             <div className="flex flex-col sm:flex-row gap-3 mb-3">
               <div className="flex-1 flex items-center gap-2 px-3 py-2.5 bg-background rounded-lg border border-border">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7355" strokeWidth="2">
@@ -24,6 +40,8 @@ export default function HeroSection() {
                 <input
                   type="text"
                   placeholder="What needs renovation?"
+                  value={service}
+                  onChange={(e) => setService(e.target.value)}
                   className="w-full text-sm text-foreground bg-transparent placeholder:text-muted-foreground border-none outline-none"
                 />
               </div>
@@ -35,17 +53,22 @@ export default function HeroSection() {
                 <input
                   type="text"
                   placeholder="City or ZIP code"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                   className="w-full text-sm text-foreground bg-transparent placeholder:text-muted-foreground border-none outline-none"
                 />
               </div>
             </div>
-            <button className="w-full inline-flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] text-[15px] font-medium hover:opacity-90 active:scale-[0.98] transition">
+            <button
+              type="submit"
+              className="w-full inline-flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] text-[15px] font-medium hover:opacity-90 active:scale-[0.98] transition"
+            >
               Find Contractors
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
-          </div>
+          </form>
 
           {/* Stats */}
           <div className="flex gap-6 sm:gap-10">
