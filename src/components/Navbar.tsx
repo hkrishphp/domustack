@@ -114,11 +114,11 @@ export default function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
-          <button className="px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)] hover:opacity-90 active:scale-[0.98] transition">
-            Sign In
-          </button>
           <button className="px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)] hover:opacity-90 active:scale-[0.98] transition">
             Get Started
+          </button>
+          <button className="px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)] hover:opacity-90 active:scale-[0.98] transition">
+            Sign In
           </button>
         </div>
 
@@ -158,11 +158,11 @@ export default function Navbar() {
             })}
           </nav>
           <div className="flex gap-2 pt-2">
-            <button className="flex-1 px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)]">
-              Sign In
-            </button>
             <button className="flex-1 px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)]">
               Get Started
+            </button>
+            <button className="flex-1 px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)]">
+              Sign In
             </button>
           </div>
         </div>
