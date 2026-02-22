@@ -1,53 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
+import type { Contractor } from "@/lib/supabase";
 
-const contractors = [
-  {
-    id: 1,
-    name: "BuildRight Construction",
-    specialty: "Kitchen & Bathroom Remodeling",
-    rating: 4.9,
-    reviews: 127,
-    location: "Los Angeles, CA",
-    price: "$$$",
-    projects: 230,
-  },
-  {
-    id: 2,
-    name: "Modern Home Solutions",
-    specialty: "Full Home Renovations",
-    rating: 4.8,
-    reviews: 89,
-    location: "New York, NY",
-    price: "$$$$",
-    projects: 156,
-  },
-  {
-    id: 3,
-    name: "Artisan Renovators",
-    specialty: "Custom Carpentry & Flooring",
-    rating: 4.9,
-    reviews: 203,
-    location: "Chicago, IL",
-    price: "$$$",
-    projects: 189,
-  },
-  {
-    id: 4,
-    name: "Precision Builders Co.",
-    specialty: "Exterior & Roofing",
-    rating: 4.7,
-    reviews: 94,
-    location: "Austin, TX",
-    price: "$$",
-    projects: 145,
-  },
-];
+export default async function ContractorsSection() {
+  const supabase = await createServerSupabaseClient();
+  const { data: contractors } = await supabase
+    .from("contractors")
+    .select("*")
+    .order("rating", { ascending: false })
+    .limit(4);
 
-const contractorImage =
-  "https://images.unsplash.com/photo-1678803262992-d79d06dd5d96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBjb250cmFjdG9yJTIwY29uc3RydWN0aW9ufGVufDF8fHx8MTc3MDg3MDc3OXww&ixlib=rb-4.1.0&q=80&w=1080";
-
-export default function ContractorsSection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-[1200px] px-6">
@@ -72,7 +35,7 @@ export default function ContractorsSection() {
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {contractors.map((contractor) => (
+          {(contractors as Contractor[] | null)?.map((contractor) => (
             <Link
               key={contractor.id}
               href={`/contractor/${contractor.id}`}
@@ -81,7 +44,7 @@ export default function ContractorsSection() {
               {/* Image */}
               <div className="relative h-[200px] overflow-hidden">
                 <Image
-                  src={contractorImage}
+                  src={contractor.image_url || "https://images.unsplash.com/photo-1678803262992-d79d06dd5d96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080"}
                   alt={contractor.name}
                   fill
                   className="object-cover"
@@ -101,7 +64,7 @@ export default function ContractorsSection() {
                 <p className="text-[13px] text-muted-foreground mb-2.5">{contractor.specialty}</p>
                 <div className="flex items-center gap-1.5 mb-2">
                   <span className="text-rating font-semibold text-sm">&#9733; {contractor.rating}</span>
-                  <span className="text-muted-foreground text-[13px]">({contractor.reviews} reviews)</span>
+                  <span className="text-muted-foreground text-[13px]">({contractor.reviews_count} reviews)</span>
                 </div>
                 <div className="flex items-center justify-between mb-2.5 text-[13px]">
                   <div className="flex items-center gap-1 text-muted-foreground">
@@ -111,10 +74,10 @@ export default function ContractorsSection() {
                     </svg>
                     {contractor.location}
                   </div>
-                  <span className="text-muted-foreground font-medium">{contractor.price}</span>
+                  <span className="text-muted-foreground font-medium">{contractor.price_range}</span>
                 </div>
                 <div className="text-[13px] text-muted-foreground pt-2.5 border-t border-border">
-                  {contractor.projects} completed projects
+                  {contractor.projects_count} completed projects
                 </div>
               </div>
             </Link>

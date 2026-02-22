@@ -1,48 +1,23 @@
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
+import type { InspirationCategory, Inspiration } from "@/lib/supabase";
 
-const categories = ["All", "Kitchen", "Bathroom", "Living Room", "Bedroom", "Exterior"];
+export default async function InspirationsPage() {
+  const supabase = await createServerSupabaseClient();
 
-const inspirations = [
-  {
-    title: "Modern Minimalist Kitchen",
-    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80",
-    author: "Sarah Mitchell",
-    likes: 234,
-  },
-  {
-    title: "Rustic Farmhouse Bathroom",
-    image: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=80",
-    author: "James Cooper",
-    likes: 189,
-  },
-  {
-    title: "Contemporary Living Space",
-    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&q=80",
-    author: "Emily Chen",
-    likes: 312,
-  },
-  {
-    title: "Scandinavian Bedroom Retreat",
-    image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=600&q=80",
-    author: "Michael Torres",
-    likes: 156,
-  },
-  {
-    title: "Luxury Master Bath",
-    image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&q=80",
-    author: "Olivia Park",
-    likes: 278,
-  },
-  {
-    title: "Open Concept Kitchen & Dining",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80",
-    author: "David Kim",
-    likes: 421,
-  },
-];
+  const [{ data: categories }, { data: inspirations }] = await Promise.all([
+    supabase.from("inspiration_categories").select("*").order("name"),
+    supabase
+      .from("inspirations")
+      .select("*, inspiration_categories(name)")
+      .order("likes", { ascending: false }),
+  ]);
 
-export default function InspirationsPage() {
+  const catList = (categories as InspirationCategory[] | null) ?? [];
+  const inspList = (inspirations as Inspiration[] | null) ?? [];
+  const allCategories = ["All", ...catList.map((c) => c.name)];
+
   return (
     <>
       <Navbar />
@@ -57,7 +32,7 @@ export default function InspirationsPage() {
               Browse thousands of renovation ideas from real projects completed by HomeRevive contractors.
             </p>
             <div className="flex items-center justify-center gap-2 flex-wrap">
-              {categories.map((cat, i) => (
+              {allCategories.map((cat, i) => (
                 <button
                   key={cat}
                   className={`px-5 py-2 rounded-full text-sm font-medium transition ${
@@ -77,14 +52,14 @@ export default function InspirationsPage() {
         <section className="py-16">
           <div className="mx-auto max-w-[1200px] px-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {inspirations.map((item) => (
+              {inspList.map((item) => (
                 <div
-                  key={item.title}
+                  key={item.id}
                   className="bg-card rounded-[var(--radius)] overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
                   <div className="relative h-[240px] overflow-hidden">
                     <Image
-                      src={item.image}
+                      src={item.image_url}
                       alt={item.title}
                       fill
                       className="object-cover"

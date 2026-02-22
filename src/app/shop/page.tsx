@@ -1,41 +1,19 @@
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
+import type { ShopCategory, Product } from "@/lib/supabase";
 
-const categories = [
-  {
-    name: "Flooring",
-    image: "https://images.unsplash.com/photo-1615873968403-89e068629265?w=400&q=80",
-    count: 245,
-  },
-  {
-    name: "Lighting",
-    image: "https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=400&q=80",
-    count: 189,
-  },
-  {
-    name: "Kitchen Fixtures",
-    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80",
-    count: 312,
-  },
-  {
-    name: "Bathroom",
-    image: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400&q=80",
-    count: 178,
-  },
-];
+export default async function ShopPage() {
+  const supabase = await createServerSupabaseClient();
 
-const products = [
-  { name: "Premium Hardwood Flooring", price: "$8.99/sq ft", rating: 4.8, reviews: 156 },
-  { name: "Modern Pendant Light Set", price: "$129.00", rating: 4.9, reviews: 89 },
-  { name: "Brushed Nickel Faucet", price: "$249.00", rating: 4.7, reviews: 203 },
-  { name: "Ceramic Subway Tiles (box)", price: "$45.00", rating: 4.8, reviews: 341 },
-  { name: "Smart Thermostat", price: "$179.00", rating: 4.9, reviews: 512 },
-  { name: "Frameless Shower Door", price: "$389.00", rating: 4.6, reviews: 94 },
-  { name: "Quartz Countertop Sample", price: "$12.99", rating: 4.8, reviews: 267 },
-  { name: "LED Recessed Light Kit", price: "$89.00", rating: 4.7, reviews: 178 },
-];
+  const [{ data: categories }, { data: products }] = await Promise.all([
+    supabase.from("shop_categories").select("*").order("name"),
+    supabase.from("products").select("*").order("rating", { ascending: false }),
+  ]);
 
-export default function ShopPage() {
+  const catList = (categories as ShopCategory[] | null) ?? [];
+  const prodList = (products as Product[] | null) ?? [];
+
   return (
     <>
       <Navbar />
@@ -68,16 +46,21 @@ export default function ShopPage() {
           <div className="mx-auto max-w-[1200px] px-6">
             <h2 className="text-2xl font-medium mb-6">Shop by Category</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {categories.map((cat) => (
+              {catList.map((cat) => (
                 <div
-                  key={cat.name}
+                  key={cat.id}
                   className="relative h-[180px] rounded-[var(--radius)] overflow-hidden cursor-pointer group"
                 >
-                  <Image src={cat.image} alt={cat.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <Image
+                    src={cat.image_url || ""}
+                    alt={cat.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 text-white">
                     <h3 className="font-semibold text-lg">{cat.name}</h3>
-                    <p className="text-sm text-white/80">{cat.count} products</p>
+                    <p className="text-sm text-white/80">{cat.product_count} products</p>
                   </div>
                 </div>
               ))}
@@ -90,9 +73,9 @@ export default function ShopPage() {
           <div className="mx-auto max-w-[1200px] px-6">
             <h2 className="text-2xl font-medium mb-6">Popular Products</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map((product) => (
+              {prodList.map((product) => (
                 <div
-                  key={product.name}
+                  key={product.id}
                   className="bg-background rounded-[var(--radius)] p-4 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow cursor-pointer"
                 >
                   <div className="h-[140px] bg-secondary rounded-lg mb-4 flex items-center justify-center">
@@ -102,10 +85,10 @@ export default function ShopPage() {
                     </svg>
                   </div>
                   <h3 className="text-sm font-semibold mb-1">{product.name}</h3>
-                  <p className="text-primary font-semibold text-[15px] mb-2">{product.price}</p>
+                  <p className="text-primary font-semibold text-[15px] mb-2">{product.price_display}</p>
                   <div className="flex items-center gap-1.5 text-[13px]">
                     <span className="text-rating font-semibold">&#9733; {product.rating}</span>
-                    <span className="text-muted-foreground">({product.reviews})</span>
+                    <span className="text-muted-foreground">({product.reviews_count})</span>
                   </div>
                 </div>
               ))}
