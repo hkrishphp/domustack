@@ -24,7 +24,7 @@ export default async function MessagesPage() {
               Messages
             </h1>
             <p className="text-muted-foreground text-lg">
-              Communicate with your contractors and the HomeRevive team.
+              Communicate with your contractors and the Domustack team.
             </p>
           </div>
         </section>

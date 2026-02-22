@@ -71,7 +71,7 @@ export default function Navbar() {
             <rect width="24" height="24" rx="6" fill="#d4704b" />
             <path d="M12 5L4 11V19C4 19.5 4.5 20 5 20H9V15H15V20H19C19.5 20 20 19.5 20 19V11L12 5Z" fill="white" />
           </svg>
-          <span>HomeRevive</span>
+          <span>Domustack</span>
         </Link>
 
         {/* Desktop Nav */}

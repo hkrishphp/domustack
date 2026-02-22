@@ -29,7 +29,7 @@ export default async function InspirationsPage() {
               Get Inspired
             </h1>
             <p className="text-muted-foreground text-lg max-w-[560px] mx-auto mb-8">
-              Browse thousands of renovation ideas from real projects completed by HomeRevive contractors.
+              Browse thousands of renovation ideas from real projects completed by Domustack contractors.
             </p>
             <div className="flex items-center justify-center gap-2 flex-wrap">
               {allCategories.map((cat, i) => (

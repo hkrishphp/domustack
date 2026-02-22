@@ -48,7 +48,7 @@ export default function FeaturesSection() {
       <div className="mx-auto max-w-[1200px] px-6">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-[28px] md:text-4xl font-medium mb-3">Why HomeRevive?</h2>
+          <h2 className="text-[28px] md:text-4xl font-medium mb-3">Why Domustack?</h2>
           <p className="text-base text-muted-foreground">
             Everything you need to plan, execute, and complete your home renovation project
           </p>
