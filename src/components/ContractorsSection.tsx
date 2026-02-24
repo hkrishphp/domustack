@@ -38,7 +38,7 @@ export default async function ContractorsSection() {
           {(contractors as Contractor[] | null)?.map((contractor) => (
             <Link
               key={contractor.id}
-              href={`/contractor/${contractor.id}`}
+              href={`/contractor/${contractor.slug}`}
               className="bg-card rounded-[var(--radius)] overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all"
             >
               {/* Image */}

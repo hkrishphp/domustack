@@ -6,6 +6,7 @@ import { createBrowserClient } from "@supabase/ssr";
 
 export type Contractor = {
   id: string;
+  slug: string;
   name: string;
   specialty: string;
   rating: number;

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import SearchAutocomplete from "@/components/SearchAutocomplete";
 
 export default function HeroSection() {
   const router = useRouter();
@@ -32,32 +33,30 @@ export default function HeroSection() {
           {/* Search Box */}
           <form onSubmit={handleSubmit} className="bg-card rounded-[var(--radius)] p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)] mb-8">
             <div className="flex flex-col sm:flex-row gap-3 mb-3">
-              <div className="flex-1 flex items-center gap-2 px-3 py-2.5 bg-background rounded-lg border border-border">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7355" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="M21 21l-4.35-4.35" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="What needs renovation?"
-                  value={service}
-                  onChange={(e) => setService(e.target.value)}
-                  className="w-full text-sm text-foreground bg-transparent placeholder:text-muted-foreground border-none outline-none"
-                />
-              </div>
-              <div className="flex-1 flex items-center gap-2 px-3 py-2.5 bg-background rounded-lg border border-border">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7355" strokeWidth="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="City or ZIP code"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="w-full text-sm text-foreground bg-transparent placeholder:text-muted-foreground border-none outline-none"
-                />
-              </div>
+              <SearchAutocomplete
+                value={service}
+                onChange={setService}
+                placeholder="What needs renovation?"
+                type="service"
+                icon={
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7355" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="M21 21l-4.35-4.35" />
+                  </svg>
+                }
+              />
+              <SearchAutocomplete
+                value={location}
+                onChange={setLocation}
+                placeholder="City or ZIP code"
+                type="location"
+                icon={
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7355" strokeWidth="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                }
+              />
             </div>
             <button
               type="submit"

@@ -4,22 +4,28 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor, ContractorService, Review } from "@/lib/supabase";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 export default async function ContractorPage({ params }: Props) {
-  const { id } = await params;
+  const { slug } = await params;
   const supabase = await createServerSupabaseClient();
 
-  const [
-    { data: contractor },
-    { data: services },
-    { data: reviews },
-  ] = await Promise.all([
-    supabase.from("contractors").select("*").eq("id", id).single(),
-    supabase.from("contractor_services").select("*").eq("contractor_id", id),
-    supabase.from("reviews").select("*").eq("contractor_id", id).order("created_at", { ascending: false }),
-  ]);
+  // First fetch the contractor by slug
+  const { data: contractor } = await supabase
+    .from("contractors")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  // Then fetch related data using the contractor's id
+  const contractorId = contractor?.id;
+  const [{ data: services }, { data: reviews }] = contractorId
+    ? await Promise.all([
+        supabase.from("contractor_services").select("*").eq("contractor_id", contractorId),
+        supabase.from("reviews").select("*").eq("contractor_id", contractorId).order("created_at", { ascending: false }),
+      ])
+    : [{ data: null }, { data: null }];
 
   if (!contractor) {
     return (

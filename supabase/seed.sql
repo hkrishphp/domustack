@@ -18,9 +18,10 @@ INSERT INTO users (id, full_name, email, avatar_url) VALUES
 -- CONTRACTORS
 -- ============================================================
 
-INSERT INTO contractors (id, name, specialty, rating, reviews_count, location, price_range, projects_count, description, image_url) VALUES
+INSERT INTO contractors (id, slug, name, specialty, rating, reviews_count, location, price_range, projects_count, description, image_url) VALUES
   (
     '11111111-1111-1111-1111-111111111101',
+    'buildright-construction',
     'BuildRight Construction',
     'Kitchen & Bathroom Remodeling',
     4.9, 127,
@@ -32,6 +33,7 @@ INSERT INTO contractors (id, name, specialty, rating, reviews_count, location, p
   ),
   (
     '11111111-1111-1111-1111-111111111102',
+    'modern-home-solutions',
     'Modern Home Solutions',
     'Full Home Renovations',
     4.8, 89,
@@ -43,6 +45,7 @@ INSERT INTO contractors (id, name, specialty, rating, reviews_count, location, p
   ),
   (
     '11111111-1111-1111-1111-111111111103',
+    'artisan-renovators',
     'Artisan Renovators',
     'Custom Carpentry & Flooring',
     4.9, 203,
@@ -54,6 +57,7 @@ INSERT INTO contractors (id, name, specialty, rating, reviews_count, location, p
   ),
   (
     '11111111-1111-1111-1111-111111111104',
+    'precision-builders-co',
     'Precision Builders Co.',
     'Exterior & Roofing',
     4.7, 94,
