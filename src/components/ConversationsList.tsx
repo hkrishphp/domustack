@@ -7,12 +7,12 @@ import {
 } from "@/lib/supabase";
 import { formatRelativeTime } from "@/lib/utils";
 
-const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
-
 export default function ConversationsList({
   initialConversations,
+  userId,
 }: {
   initialConversations: ConversationWithDetails[];
+  userId: string;
 }) {
   const [conversations, setConversations] = useState(initialConversations);
 
@@ -27,7 +27,7 @@ export default function ConversationsList({
         async () => {
           // Re-fetch conversations on new message
           const { data } = await supabase.rpc("get_conversations", {
-            p_user_id: DEMO_USER_ID,
+            p_user_id: userId,
           });
           if (data) setConversations(data);
         }
@@ -37,7 +37,7 @@ export default function ConversationsList({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [userId]);
 
   return (
     <div className="bg-card rounded-[var(--radius)] shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-border">

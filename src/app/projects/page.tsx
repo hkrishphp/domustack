@@ -3,14 +3,14 @@ import ProjectsList from "@/components/ProjectsList";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Project } from "@/lib/supabase";
 
-const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
-
 export default async function ProjectsPage() {
   const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { data } = await supabase
     .from("projects")
     .select("*, contractors(name)")
-    .eq("user_id", DEMO_USER_ID)
+    .eq("user_id", user!.id)
     .order("created_at", { ascending: false });
 
   const projects = (data as Project[] | null) ?? [];

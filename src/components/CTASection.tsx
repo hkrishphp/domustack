@@ -11,9 +11,12 @@ export default function CTASection() {
           Join thousands of homeowners who have successfully completed their renovations
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-white text-primary rounded-[var(--radius)] text-[15px] font-medium hover:opacity-90 active:scale-[0.98] transition">
+          <Link
+            href="/auth/sign-up"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-white text-primary rounded-[var(--radius)] text-[15px] font-medium hover:opacity-90 active:scale-[0.98] transition"
+          >
             Get Started Free
-          </button>
+          </Link>
           <Link
             href="/inspirations"
             className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border-[1.5px] border-white/50 text-white rounded-[var(--radius)] text-[15px] font-medium hover:bg-white/10 transition"

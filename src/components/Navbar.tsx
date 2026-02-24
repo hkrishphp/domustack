@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
+
+type UserInfo = { full_name: string; email: string; avatar_url: string | null };
 
 const navItems = [
   {
@@ -61,19 +63,67 @@ const navItems = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
+
+    async function loadUser(userId: string) {
+      const { data } = await supabase
+        .from("users")
+        .select("full_name, email, avatar_url")
+        .eq("id", userId)
+        .single();
+      if (data) {
+        setUser(data);
+        setIsLoggedIn(true);
+      }
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
+      if (session?.user) {
+        loadUser(session.user.id);
+      }
     });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
+      if (session?.user) {
+        loadUser(session.user.id);
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
     });
+
     return () => subscription.unsubscribe();
   }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  async function handleLogout() {
+    const supabase = createBrowserSupabaseClient();
+    await supabase.auth.signOut();
+    setUser(null);
+    setIsLoggedIn(false);
+    setDropdownOpen(false);
+    setMobileOpen(false);
+    router.push("/");
+    router.refresh();
+  }
 
   const visibleNavItems = navItems.filter(
     (item) => (item.href !== "/messages" && item.href !== "/projects") || isLoggedIn
@@ -113,14 +163,60 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-2">
-          <button className="px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)] hover:opacity-90 active:scale-[0.98] transition">
-            Get Started
-          </button>
-          <button className="px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)] hover:opacity-90 active:scale-[0.98] transition">
-            Sign In
-          </button>
-        </div>
+        {!isLoggedIn ? (
+          <div className="hidden md:flex items-center gap-2">
+            <Link
+              href="/auth/sign-up"
+              className="px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)] hover:opacity-90 active:scale-[0.98] transition"
+            >
+              Get Started
+            </Link>
+            <Link
+              href="/auth/sign-in"
+              className="px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)] hover:opacity-90 active:scale-[0.98] transition"
+            >
+              Sign In
+            </Link>
+          </div>
+        ) : (
+          <div ref={dropdownRef} className="hidden md:flex items-center relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius)] hover:bg-secondary transition"
+            >
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <span className="text-primary font-semibold text-sm">
+                    {user?.full_name?.charAt(0)?.toUpperCase() || "U"}
+                  </span>
+                )}
+              </div>
+              <span className="text-sm font-medium text-foreground max-w-[120px] truncate">
+                {user?.full_name || "User"}
+              </span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute top-full right-0 mt-2 w-48 bg-card rounded-[var(--radius)] shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-border py-1 z-50">
+                <div className="px-4 py-2 border-b border-border">
+                  <p className="text-sm font-medium truncate">{user?.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-secondary transition"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Mobile Menu Button */}
         <button
@@ -157,14 +253,48 @@ export default function Navbar() {
               );
             })}
           </nav>
-          <div className="flex gap-2 pt-2">
-            <button className="flex-1 px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)]">
-              Get Started
-            </button>
-            <button className="flex-1 px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)]">
-              Sign In
-            </button>
-          </div>
+          {!isLoggedIn ? (
+            <div className="flex gap-2 pt-2">
+              <Link
+                href="/auth/sign-up"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)]"
+              >
+                Get Started
+              </Link>
+              <Link
+                href="/auth/sign-in"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)]"
+              >
+                Sign In
+              </Link>
+            </div>
+          ) : (
+            <div className="pt-2 border-t border-border">
+              <div className="flex items-center gap-3 px-4 py-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                  ) : (
+                    <span className="text-primary font-semibold text-sm">
+                      {user?.full_name?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{user?.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-secondary rounded-[var(--radius)] transition"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       )}
     </header>
