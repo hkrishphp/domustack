@@ -60,8 +60,17 @@ export default async function SearchPage({
 
   query = query.order(sort, { ascending: false });
 
-  const { data: contractors } = await query;
+  const { data: contractors, error: queryError } = await query;
   const results = (contractors as Contractor[] | null) || [];
+
+  // Temporary debug info — remove after fixing
+  const debugInfo = {
+    hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    urlPrefix: process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 30) || "MISSING",
+    error: queryError?.message || null,
+    resultCount: results.length,
+  };
 
   // Build filter removal URLs
   function removeFilterUrl(key: string) {
@@ -76,6 +85,10 @@ export default async function SearchPage({
   return (
     <div className="py-10">
       <div className="mx-auto max-w-[1200px] px-6">
+        {/* Temporary debug banner — remove after fixing */}
+        <pre className="mb-4 p-3 bg-yellow-100 text-xs rounded overflow-auto">
+          {JSON.stringify(debugInfo, null, 2)}
+        </pre>
         {/* Header with search form */}
         <div className="mb-8">
           <h1 className="text-[28px] md:text-4xl font-medium mb-4">
