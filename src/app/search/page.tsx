@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor } from "@/lib/supabase";
+import Navbar from "@/components/Navbar";
 import SearchForm from "@/components/SearchForm";
 import SortSelect from "@/components/SortSelect";
 
@@ -74,6 +75,8 @@ export default async function SearchPage({
   }
 
   return (
+    <>
+    <Navbar />
     <div className="py-10">
       <div className="mx-auto max-w-[1200px] px-6">
         {/* Header with search form */}
@@ -208,5 +211,6 @@ export default async function SearchPage({
         )}
       </div>
     </div>
+    </>
   );
 }
