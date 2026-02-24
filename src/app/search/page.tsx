@@ -45,10 +45,12 @@ export default async function SearchPage({
   if (service) {
     if (matchedIds.length > 0) {
       query = query.or(
-        `specialty.ilike.%${service}%,id.in.(${matchedIds.join(",")})`
+        `name.ilike.%${service}%,specialty.ilike.%${service}%,id.in.(${matchedIds.join(",")})`
       );
     } else {
-      query = query.ilike("specialty", `%${service}%`);
+      query = query.or(
+        `name.ilike.%${service}%,specialty.ilike.%${service}%`
+      );
     }
   }
 
