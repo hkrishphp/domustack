@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import ContractorActions from "@/components/ContractorActions";
 import Image from "next/image";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor, ContractorService, Review } from "@/lib/supabase";
@@ -141,12 +142,7 @@ export default async function ContractorPage({ params }: Props) {
                     Price range: {c.price_range}
                   </div>
                 </div>
-                <button className="w-full py-3 bg-primary text-primary-foreground rounded-[var(--radius)] text-[15px] font-medium hover:opacity-90 active:scale-[0.98] transition mb-3">
-                  Request a Quote
-                </button>
-                <button className="w-full py-3 bg-secondary text-foreground rounded-[var(--radius)] text-[15px] font-medium hover:bg-secondary/80 transition">
-                  Send Message
-                </button>
+                <ContractorActions contractorId={c.id} contractorName={c.name} />
               </div>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import ProjectsList from "@/components/ProjectsList";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
@@ -31,12 +32,12 @@ export default async function ProjectsPage() {
                   Track and manage all your renovation projects.
                 </p>
               </div>
-              <button className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-[var(--radius)] text-[15px] font-medium hover:opacity-90 active:scale-[0.98] transition w-fit">
+              <Link href="/projects/new" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-[var(--radius)] text-[15px] font-medium hover:opacity-90 active:scale-[0.98] transition w-fit">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 5v14M5 12h14" />
                 </svg>
                 New Project
-              </button>
+              </Link>
             </div>
           </div>
         </section>
@@ -44,7 +45,7 @@ export default async function ProjectsPage() {
         {/* Projects List */}
         <section className="py-16">
           <div className="mx-auto max-w-[1200px] px-6">
-            <ProjectsList initialProjects={projects} />
+            <ProjectsList initialProjects={projects} userId={user!.id} />
           </div>
         </section>
       </main>

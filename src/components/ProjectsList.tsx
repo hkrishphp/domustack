@@ -6,8 +6,10 @@ import { statusLabel, statusColor, formatDate } from "@/lib/utils";
 
 export default function ProjectsList({
   initialProjects,
+  userId,
 }: {
   initialProjects: Project[];
+  userId: string;
 }) {
   const [projects, setProjects] = useState(initialProjects);
 
@@ -20,10 +22,11 @@ export default function ProjectsList({
         "postgres_changes",
         { event: "*", schema: "public", table: "projects" },
         async () => {
-          // Re-fetch all projects on any change
+          // Re-fetch only this user's projects on any change
           const { data } = await supabase
             .from("projects")
             .select("*, contractors(name)")
+            .eq("user_id", userId)
             .order("created_at", { ascending: false });
           if (data) setProjects(data);
         }
@@ -33,7 +36,7 @@ export default function ProjectsList({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [userId]);
 
   return (
     <div className="flex flex-col gap-6">

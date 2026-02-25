@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   createBrowserSupabaseClient,
   type ConversationWithDetails,
@@ -14,6 +15,7 @@ export default function ConversationsList({
   initialConversations: ConversationWithDetails[];
   userId: string;
 }) {
+  const router = useRouter();
   const [conversations, setConversations] = useState(initialConversations);
 
   useEffect(() => {
@@ -44,6 +46,7 @@ export default function ConversationsList({
       {conversations.map((convo) => (
         <div
           key={convo.id}
+          onClick={() => router.push(`/messages/${convo.id}`)}
           className="flex items-start gap-4 p-5 hover:bg-secondary/50 transition-colors cursor-pointer"
         >
           {/* Avatar */}
