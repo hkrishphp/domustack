@@ -165,6 +165,14 @@ export default function Navbar() {
         {/* Desktop Actions */}
         {!isLoggedIn ? (
           <div className="hidden md:flex items-center gap-2">
+            <a
+              href="https://kontraio.com/signup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 text-[15px] font-medium text-foreground border border-border rounded-[var(--radius)] hover:bg-secondary/50 active:scale-[0.98] transition"
+            >
+              Contractor Login
+            </a>
             <Link
               href="/auth/sign-up"
               className="px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)] hover:opacity-90 active:scale-[0.98] transition"
@@ -254,21 +262,32 @@ export default function Navbar() {
             })}
           </nav>
           {!isLoggedIn ? (
-            <div className="flex gap-2 pt-2">
-              <Link
-                href="/auth/sign-up"
+            <div className="flex flex-col gap-2 pt-2">
+              <a
+                href="https://kontraio.com/signup"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setMobileOpen(false)}
-                className="flex-1 text-center px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)]"
+                className="text-center px-4 py-2.5 text-[15px] font-medium text-foreground border border-border rounded-[var(--radius)] hover:bg-secondary/50"
               >
-                Get Started
-              </Link>
-              <Link
-                href="/auth/sign-in"
-                onClick={() => setMobileOpen(false)}
-                className="flex-1 text-center px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)]"
-              >
-                Sign In
-              </Link>
+                Contractor Login
+              </a>
+              <div className="flex gap-2">
+                <Link
+                  href="/auth/sign-up"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 text-center px-6 py-2.5 text-[15px] font-medium text-primary-foreground bg-primary rounded-[var(--radius)]"
+                >
+                  Get Started
+                </Link>
+                <Link
+                  href="/auth/sign-in"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 text-center px-4 py-2.5 text-[15px] font-medium text-foreground bg-transparent rounded-[var(--radius)]"
+                >
+                  Sign In
+                </Link>
+              </div>
             </div>
           ) : (
             <div className="pt-2 border-t border-border">
