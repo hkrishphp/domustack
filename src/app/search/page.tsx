@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor } from "@/lib/supabase";
+import { fetchKontraioContractors } from "@/lib/kontraio";
 import Navbar from "@/components/Navbar";
 import SearchForm from "@/components/SearchForm";
 import SortSelect from "@/components/SortSelect";
@@ -62,7 +63,47 @@ export default async function SearchPage({
   query = query.order(sort, { ascending: false });
 
   const { data: contractors } = await query;
-  const results = (contractors as Contractor[] | null) || [];
+  const domuResults = (contractors as Contractor[] | null) || [];
+
+  // Fetch Kontraio contractors (real contractors from partner platform)
+  let kontraioResults: Contractor[] = [];
+  try {
+    const kontraioData = await fetchKontraioContractors();
+    kontraioResults = kontraioData
+      .filter((k) => {
+        // Apply same search/location filters
+        if (service) {
+          const s = service.toLowerCase();
+          const nameMatch = k.name.toLowerCase().includes(s);
+          const serviceMatch = k.services.some((svc) => svc.toLowerCase().includes(s));
+          if (!nameMatch && !serviceMatch) return false;
+        }
+        if (location) {
+          const l = location.toLowerCase();
+          if (!k.location.toLowerCase().includes(l)) return false;
+        }
+        return true;
+      })
+      .map((k) => ({
+        id: k.id,
+        slug: `k-${k.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "")}`,
+        name: k.name,
+        specialty: k.services.length > 0 ? k.services.slice(0, 2).join(", ") : "General Contractor",
+        rating: 0,
+        reviews_count: 0,
+        location: k.location,
+        price_range: "",
+        projects_count: 0,
+        description: null,
+        image_url: k.logo_url,
+        created_at: "",
+      }));
+  } catch {
+    // Silently fail if Kontraio is unavailable
+  }
+
+  // Merge: Kontraio contractors first (real), then Domustack seed data
+  const results = [...kontraioResults, ...domuResults];
 
   // Build filter removal URLs
   function removeFilterUrl(key: string) {
@@ -157,12 +198,20 @@ export default async function SearchPage({
                 <div className="p-4">
                   <h3 className="text-base font-semibold mb-1">{contractor.name}</h3>
                   <p className="text-[13px] text-muted-foreground mb-2.5">{contractor.specialty}</p>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="text-rating font-semibold text-sm">&#9733; {contractor.rating}</span>
-                    <span className="text-muted-foreground text-[13px]">
-                      ({contractor.reviews_count} reviews)
-                    </span>
-                  </div>
+                  {contractor.rating > 0 ? (
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className="text-rating font-semibold text-sm">&#9733; {contractor.rating}</span>
+                      <span className="text-muted-foreground text-[13px]">
+                        ({contractor.reviews_count} reviews)
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mb-2">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                        New on Domustack
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mb-2.5 text-[13px]">
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b7355" strokeWidth="2">
@@ -171,11 +220,15 @@ export default async function SearchPage({
                       </svg>
                       {contractor.location}
                     </div>
-                    <span className="text-muted-foreground font-medium">{contractor.price_range}</span>
+                    {contractor.price_range && (
+                      <span className="text-muted-foreground font-medium">{contractor.price_range}</span>
+                    )}
                   </div>
-                  <div className="text-[13px] text-muted-foreground pt-2.5 border-t border-border">
-                    {contractor.projects_count} completed projects
-                  </div>
+                  {contractor.projects_count > 0 && (
+                    <div className="text-[13px] text-muted-foreground pt-2.5 border-t border-border">
+                      {contractor.projects_count} completed projects
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}
