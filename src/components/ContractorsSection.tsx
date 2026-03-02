@@ -17,7 +17,7 @@ export default async function ContractorsSection() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-start justify-between mb-8 gap-3">
           <div>
-            <h2 className="text-[28px] md:text-4xl font-medium mb-2">Top-Rated Contractors</h2>
+            <h2 className="text-[28px] md:text-4xl font-medium mb-2">Featured Contractors</h2>
             <p className="text-base text-muted-foreground">
               Trusted professionals ready to bring your vision to life
             </p>

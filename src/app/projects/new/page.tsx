@@ -15,13 +15,32 @@ type ContractorOption = {
 export default function NewProjectPage() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [budget, setBudget] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [contractorId, setContractorId] = useState("");
   const [contractors, setContractors] = useState<ContractorOption[]>([]);
+  const [beforeImage, setBeforeImage] = useState<File | null>(null);
+  const [afterImage, setAfterImage] = useState<File | null>(null);
+  const [beforePreview, setBeforePreview] = useState<string | null>(null);
+  const [afterPreview, setAfterPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function handleImageChange(
+    file: File | null,
+    setFile: (f: File | null) => void,
+    setPreview: (url: string | null) => void
+  ) {
+    if (file) {
+      setFile(file);
+      setPreview(URL.createObjectURL(file));
+    } else {
+      setFile(null);
+      setPreview(null);
+    }
+  }
 
   useEffect(() => {
     async function fetchContractors() {
@@ -51,13 +70,54 @@ export default function NewProjectPage() {
       return;
     }
 
+    // Upload images if selected
+    let beforeImageUrl: string | null = null;
+    let afterImageUrl: string | null = null;
+
+    if (beforeImage) {
+      const ext = beforeImage.name.split(".").pop();
+      const path = `${user.id}/${Date.now()}-before.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("project-images")
+        .upload(path, beforeImage);
+      if (uploadErr) {
+        setError("Failed to upload before image: " + uploadErr.message);
+        setLoading(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage
+        .from("project-images")
+        .getPublicUrl(path);
+      beforeImageUrl = urlData.publicUrl;
+    }
+
+    if (afterImage) {
+      const ext = afterImage.name.split(".").pop();
+      const path = `${user.id}/${Date.now()}-after.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("project-images")
+        .upload(path, afterImage);
+      if (uploadErr) {
+        setError("Failed to upload after image: " + uploadErr.message);
+        setLoading(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage
+        .from("project-images")
+        .getPublicUrl(path);
+      afterImageUrl = urlData.publicUrl;
+    }
+
     const { error: insertError } = await supabase.from("projects").insert({
       user_id: user.id,
       name: name.trim(),
+      description: description.trim() || null,
       budget: budget.trim() || null,
       start_date: startDate || null,
       end_date: endDate || null,
       contractor_id: contractorId || null,
+      before_image_url: beforeImageUrl,
+      after_image_url: afterImageUrl,
       status: "planning",
       progress: 0,
     });
@@ -133,6 +193,85 @@ export default function NewProjectPage() {
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-4 py-3 bg-card border border-border rounded-[var(--radius)] text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition"
                 />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  rows={4}
+                  placeholder="Describe your project — goals, scope, special requirements..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-4 py-3 bg-card border border-border rounded-[var(--radius)] text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition resize-vertical"
+                />
+              </div>
+
+              {/* Images */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="beforeImage"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    Before Picture
+                  </label>
+                  <input
+                    id="beforeImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageChange(
+                        e.target.files?.[0] || null,
+                        setBeforeImage,
+                        setBeforePreview
+                      )
+                    }
+                    className="w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-[var(--radius)] file:border file:border-border file:text-sm file:font-medium file:bg-card file:text-foreground hover:file:bg-secondary/50 file:cursor-pointer file:transition"
+                  />
+                  {beforePreview && (
+                    <img
+                      src={beforePreview}
+                      alt="Before preview"
+                      className="mt-3 w-full h-[150px] object-cover rounded-[var(--radius)] border border-border"
+                    />
+                  )}
+                </div>
+                <div>
+                  <label
+                    htmlFor="afterImage"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    After / Expected Picture{" "}
+                    <span className="text-muted-foreground font-normal">(optional)</span>
+                  </label>
+                  <input
+                    id="afterImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageChange(
+                        e.target.files?.[0] || null,
+                        setAfterImage,
+                        setAfterPreview
+                      )
+                    }
+                    className="w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-[var(--radius)] file:border file:border-border file:text-sm file:font-medium file:bg-card file:text-foreground hover:file:bg-secondary/50 file:cursor-pointer file:transition"
+                  />
+                  {afterPreview && (
+                    <img
+                      src={afterPreview}
+                      alt="After preview"
+                      className="mt-3 w-full h-[150px] object-cover rounded-[var(--radius)] border border-border"
+                    />
+                  )}
+                </div>
               </div>
 
               {/* Budget */}

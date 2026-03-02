@@ -20,13 +20,34 @@ export default function EditProjectPage() {
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState("planning");
   const [progress, setProgress] = useState(0);
+  const [description, setDescription] = useState("");
   const [contractorId, setContractorId] = useState("");
   const [contractors, setContractors] = useState<ContractorOption[]>([]);
+  const [beforeImage, setBeforeImage] = useState<File | null>(null);
+  const [afterImage, setAfterImage] = useState<File | null>(null);
+  const [beforePreview, setBeforePreview] = useState<string | null>(null);
+  const [afterPreview, setAfterPreview] = useState<string | null>(null);
+  const [existingBeforeUrl, setExistingBeforeUrl] = useState<string | null>(null);
+  const [existingAfterUrl, setExistingAfterUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  function handleImageChange(
+    file: File | null,
+    setFile: (f: File | null) => void,
+    setPreview: (url: string | null) => void
+  ) {
+    if (file) {
+      setFile(file);
+      setPreview(URL.createObjectURL(file));
+    } else {
+      setFile(null);
+      setPreview(null);
+    }
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -47,14 +68,17 @@ export default function EditProjectPage() {
         .single();
 
       if (project) {
-        const p = project as Project;
+        const p = project as any;
         setName(p.name);
+        setDescription(p.description || "");
         setBudget(p.budget || "");
         setStartDate(p.start_date || "");
         setEndDate(p.end_date || "");
         setStatus(p.status);
         setProgress(p.progress);
         setContractorId(p.contractor_id || "");
+        setExistingBeforeUrl(p.before_image_url || null);
+        setExistingAfterUrl(p.after_image_url || null);
       }
 
       setPageLoading(false);
@@ -69,17 +93,61 @@ export default function EditProjectPage() {
     setLoading(true);
 
     const supabase = createBrowserSupabaseClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // Upload new images if selected
+    let beforeImageUrl = existingBeforeUrl;
+    let afterImageUrl = existingAfterUrl;
+
+    if (beforeImage) {
+      const ext = beforeImage.name.split(".").pop();
+      const path = `${user?.id || "anon"}/${Date.now()}-before.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("project-images")
+        .upload(path, beforeImage);
+      if (uploadErr) {
+        setError("Failed to upload before image: " + uploadErr.message);
+        setLoading(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage
+        .from("project-images")
+        .getPublicUrl(path);
+      beforeImageUrl = urlData.publicUrl;
+    }
+
+    if (afterImage) {
+      const ext = afterImage.name.split(".").pop();
+      const path = `${user?.id || "anon"}/${Date.now()}-after.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("project-images")
+        .upload(path, afterImage);
+      if (uploadErr) {
+        setError("Failed to upload after image: " + uploadErr.message);
+        setLoading(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage
+        .from("project-images")
+        .getPublicUrl(path);
+      afterImageUrl = urlData.publicUrl;
+    }
 
     const { error: updateError } = await supabase
       .from("projects")
       .update({
         name: name.trim(),
+        description: description.trim() || null,
         budget: budget.trim() || null,
         start_date: startDate || null,
         end_date: endDate || null,
         status,
         progress,
         contractor_id: contractorId || null,
+        before_image_url: beforeImageUrl,
+        after_image_url: afterImageUrl,
       })
       .eq("id", projectId);
 
@@ -219,6 +287,85 @@ export default function EditProjectPage() {
                     onChange={(e) => setProgress(Number(e.target.value))}
                     className="w-full h-2 mt-3 accent-primary"
                   />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  rows={4}
+                  placeholder="Describe your project — goals, scope, special requirements..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-4 py-3 bg-card border border-border rounded-[var(--radius)] text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition resize-vertical"
+                />
+              </div>
+
+              {/* Images */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="beforeImage"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    Before Picture
+                  </label>
+                  <input
+                    id="beforeImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageChange(
+                        e.target.files?.[0] || null,
+                        setBeforeImage,
+                        setBeforePreview
+                      )
+                    }
+                    className="w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-[var(--radius)] file:border file:border-border file:text-sm file:font-medium file:bg-card file:text-foreground hover:file:bg-secondary/50 file:cursor-pointer file:transition"
+                  />
+                  {(beforePreview || existingBeforeUrl) && (
+                    <img
+                      src={beforePreview || existingBeforeUrl!}
+                      alt="Before preview"
+                      className="mt-3 w-full h-[150px] object-cover rounded-[var(--radius)] border border-border"
+                    />
+                  )}
+                </div>
+                <div>
+                  <label
+                    htmlFor="afterImage"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    After / Expected Picture{" "}
+                    <span className="text-muted-foreground font-normal">(optional)</span>
+                  </label>
+                  <input
+                    id="afterImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageChange(
+                        e.target.files?.[0] || null,
+                        setAfterImage,
+                        setAfterPreview
+                      )
+                    }
+                    className="w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-[var(--radius)] file:border file:border-border file:text-sm file:font-medium file:bg-card file:text-foreground hover:file:bg-secondary/50 file:cursor-pointer file:transition"
+                  />
+                  {(afterPreview || existingAfterUrl) && (
+                    <img
+                      src={afterPreview || existingAfterUrl!}
+                      alt="After preview"
+                      className="mt-3 w-full h-[150px] object-cover rounded-[var(--radius)] border border-border"
+                    />
+                  )}
                 </div>
               </div>
 
