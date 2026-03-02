@@ -25,7 +25,6 @@ export default function ProjectsList({
         "postgres_changes",
         { event: "*", schema: "public", table: "projects" },
         async () => {
-          // Re-fetch only this user's projects on any change
           const { data } = await supabase
             .from("projects")
             .select("*, contractors(name)")
@@ -52,23 +51,28 @@ export default function ProjectsList({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       {projects.length === 0 && (
-        <p className="text-center text-muted-foreground py-12">
-          No projects yet. Create your first project to get started!
-        </p>
+        <div className="text-center py-16">
+          <svg className="mx-auto mb-4 text-muted-foreground" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M12 8v8M8 12h8" />
+          </svg>
+          <p className="text-lg font-medium mb-1">No projects yet</p>
+          <p className="text-muted-foreground">Create your first project to get started!</p>
+        </div>
       )}
       {projects.map((project) => (
         <div
           key={project.id}
-          className="bg-card rounded-[var(--radius)] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow"
+          className="bg-white rounded-2xl p-6 border border-border hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-shadow"
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-            <div>
-              <div className="flex items-center gap-3 mb-1">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 mb-1.5 flex-wrap">
                 <h3 className="text-lg font-semibold">{project.name}</h3>
                 <span
-                  className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColor(project.status)}`}
+                  className={`text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap ${statusColor(project.status)}`}
                 >
                   {statusLabel(project.status)}
                 </span>
@@ -77,22 +81,21 @@ export default function ProjectsList({
                 Contractor: {project.contractors?.name ?? "Unassigned"}
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 shrink-0">
               <div className="text-right">
-                <p className="text-lg font-semibold text-foreground">
-                  {project.budget}
+                <p className="text-lg font-bold text-foreground">
+                  {project.budget || "—"}
                 </p>
                 <p className="text-[13px] text-muted-foreground">
                   {project.start_date ? formatDate(project.start_date) : "TBD"} —{" "}
                   {project.end_date ? formatDate(project.end_date) : "TBD"}
                 </p>
               </div>
-              {/* Action buttons */}
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => router.push(`/projects/${project.id}/edit`)}
                   title="Edit project"
-                  className="p-2 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-secondary transition"
+                  className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/5 transition"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -103,7 +106,7 @@ export default function ProjectsList({
                   onClick={() => handleDelete(project.id, project.name)}
                   disabled={deletingId === project.id}
                   title="Delete project"
-                  className="p-2 rounded-[var(--radius)] text-muted-foreground hover:text-red-600 hover:bg-red-50 transition disabled:opacity-50"
+                  className="p-2 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 transition disabled:opacity-50"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="3 6 5 6 21 6" />
@@ -114,9 +117,9 @@ export default function ProjectsList({
             </div>
           </div>
           {/* Progress bar */}
-          <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary rounded-full transition-all"
+              className="h-full bg-accent rounded-full transition-all"
               style={{ width: `${project.progress}%` }}
             />
           </div>

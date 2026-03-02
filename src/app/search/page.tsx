@@ -118,14 +118,14 @@ export default async function SearchPage({
   return (
     <>
     <Navbar />
-    <div className="py-10">
-      <div className="mx-auto max-w-[1200px] px-6">
+    <div className="py-12">
+      <div className="mx-auto max-w-[1280px] px-6">
         {/* Header with search form */}
-        <div className="mb-8">
-          <h1 className="text-[28px] md:text-4xl font-medium mb-4">
+        <div className="mb-10">
+          <h1 className="text-3xl md:text-[40px] font-bold tracking-tight mb-5">
             {service || location ? "Search Results" : "All Contractors"}
           </h1>
-          <div className="bg-card rounded-[var(--radius)] p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+          <div className="bg-white rounded-2xl p-4 shadow-[0_2px_16px_rgba(0,0,0,0.05)] border border-border">
             <SearchForm initialService={service} initialLocation={location} />
           </div>
         </div>
@@ -172,7 +172,7 @@ export default async function SearchPage({
               <Link
                 key={contractor.id}
                 href={`/contractor/${contractor.slug}`}
-                className="bg-card rounded-[var(--radius)] overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all"
+                className="group bg-white rounded-2xl overflow-hidden border border-border hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300"
               >
                 {/* Image */}
                 <div className="relative h-[200px] overflow-hidden">
@@ -183,7 +183,7 @@ export default async function SearchPage({
                     }
                     alt={contractor.name}
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <span className="absolute top-3 right-3 bg-verified text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
@@ -214,7 +214,7 @@ export default async function SearchPage({
                   )}
                   <div className="flex items-center justify-between mb-2.5 text-[13px]">
                     <div className="flex items-center gap-1 text-muted-foreground">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b7355" strokeWidth="2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                       </svg>

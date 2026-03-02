@@ -21,18 +21,18 @@ export default async function ProjectsPage() {
       <Navbar />
       <main>
         {/* Header */}
-        <section className="bg-card py-16">
-          <div className="mx-auto max-w-[1200px] px-6">
+        <section className="bg-white border-b border-border py-12">
+          <div className="mx-auto max-w-[1280px] px-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-[32px] md:text-[48px] font-medium leading-tight mb-2">
+                <h1 className="text-3xl md:text-[40px] font-bold tracking-tight mb-2">
                   My Projects
                 </h1>
                 <p className="text-muted-foreground text-lg">
                   Track and manage all your renovation projects.
                 </p>
               </div>
-              <Link href="/projects/new" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-[var(--radius)] text-[15px] font-medium hover:opacity-90 active:scale-[0.98] transition w-fit">
+              <Link href="/projects/new" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-xl text-[15px] font-semibold hover:brightness-110 active:scale-[0.98] transition shadow-sm w-fit">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 5v14M5 12h14" />
                 </svg>
@@ -43,8 +43,8 @@ export default async function ProjectsPage() {
         </section>
 
         {/* Projects List */}
-        <section className="py-16">
-          <div className="mx-auto max-w-[1200px] px-6">
+        <section className="py-12">
+          <div className="mx-auto max-w-[1280px] px-6">
             <ProjectsList initialProjects={projects} userId={user!.id} />
           </div>
         </section>
