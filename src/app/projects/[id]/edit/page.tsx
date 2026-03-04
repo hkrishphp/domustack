@@ -265,6 +265,7 @@ export default function EditProjectPage() {
                     }}
                     className="w-full px-4 py-3 bg-card border border-border rounded-[var(--radius)] text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition"
                   >
+                    <option value="open">Open for Bids</option>
                     <option value="planning">Planning</option>
                     <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>

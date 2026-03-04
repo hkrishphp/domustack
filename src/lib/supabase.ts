@@ -75,13 +75,53 @@ export type Project = {
   user_id: string;
   contractor_id: string | null;
   name: string;
-  status: "planning" | "in_progress" | "completed";
+  description: string | null;
+  status: "open" | "planning" | "in_progress" | "completed";
   progress: number;
   budget: string | null;
   start_date: string | null;
   end_date: string | null;
+  before_image_url: string | null;
+  after_image_url: string | null;
+  // Intake form fields
+  service_types: string[] | null;
+  property_type: string | null;
+  budget_range: string | null;
+  timeline: string | null;
+  photos: string[] | null;
+  expected_photos: string[] | null;
+  street_address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  contact_first_name: string | null;
+  contact_last_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  preferred_contact: string | null;
   created_at: string;
   contractors?: { name: string } | null;
+  users?: { full_name: string } | null;
+};
+
+export type Bid = {
+  id: string;
+  project_id: string;
+  contractor_id: string;
+  price_estimate: string;
+  timeline: string;
+  description: string;
+  terms: string | null;
+  status: "pending" | "accepted" | "rejected" | "withdrawn";
+  created_at: string;
+  updated_at: string;
+  contractors?: {
+    name: string;
+    rating: number;
+    reviews_count: number;
+    location: string;
+    image_url: string | null;
+  } | null;
 };
 
 export type Conversation = {

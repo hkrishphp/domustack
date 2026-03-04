@@ -36,6 +36,8 @@ export function formatDate(isoDate: string): string {
 /** Map DB status values to display labels */
 export function statusLabel(status: string): string {
   switch (status) {
+    case "open":
+      return "Open for Bids";
     case "planning":
       return "Planning";
     case "in_progress":
@@ -50,6 +52,8 @@ export function statusLabel(status: string): string {
 /** CSS classes for project status badges */
 export function statusColor(status: string): string {
   switch (status) {
+    case "open":
+      return "bg-accent/15 text-accent";
     case "completed":
       return "bg-verified/20 text-green-700";
     case "in_progress":

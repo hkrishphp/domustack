@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor } from "@/lib/supabase";
 import { fetchKontraioContractors } from "@/lib/kontraio";
+import { getGoogleRatingForContractor } from "@/lib/google-places";
 import Navbar from "@/components/Navbar";
 import SearchForm from "@/components/SearchForm";
 import SortSelect from "@/components/SortSelect";
@@ -69,35 +70,44 @@ export default async function SearchPage({
   let kontraioResults: Contractor[] = [];
   try {
     const kontraioData = await fetchKontraioContractors();
-    kontraioResults = kontraioData
-      .filter((k) => {
-        // Apply same search/location filters
-        if (service) {
-          const s = service.toLowerCase();
-          const nameMatch = k.name.toLowerCase().includes(s);
-          const serviceMatch = k.services.some((svc) => svc.toLowerCase().includes(s));
-          if (!nameMatch && !serviceMatch) return false;
-        }
-        if (location) {
-          const l = location.toLowerCase();
-          if (!k.location.toLowerCase().includes(l)) return false;
-        }
-        return true;
+    const filtered = kontraioData.filter((k) => {
+      // Apply same search/location filters
+      if (service) {
+        const s = service.toLowerCase();
+        const nameMatch = k.name.toLowerCase().includes(s);
+        const serviceMatch = k.services.some((svc) => svc.toLowerCase().includes(s));
+        if (!nameMatch && !serviceMatch) return false;
+      }
+      if (location) {
+        const l = location.toLowerCase();
+        if (!k.location.toLowerCase().includes(l)) return false;
+      }
+      return true;
+    });
+
+    // Batch-fetch Google ratings for all matching Kontraio contractors
+    const googleRatings = await Promise.all(
+      filtered.map(async (k) => {
+        const gData = await getGoogleRatingForContractor(k.id, k.name, k.location);
+        return { id: k.id, ...gData };
       })
-      .map((k) => ({
-        id: k.id,
-        slug: `k-${k.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "")}`,
-        name: k.name,
-        specialty: k.services.length > 0 ? k.services.slice(0, 2).join(", ") : "General Contractor",
-        rating: 0,
-        reviews_count: 0,
-        location: k.location,
-        price_range: "",
-        projects_count: 0,
-        description: null,
-        image_url: k.logo_url,
-        created_at: "",
-      }));
+    );
+    const googleRatingMap = new Map(googleRatings.map((g) => [g.id, g]));
+
+    kontraioResults = filtered.map((k) => ({
+      id: k.id,
+      slug: `k-${k.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "")}`,
+      name: k.name,
+      specialty: k.services.length > 0 ? k.services.slice(0, 2).join(", ") : "General Contractor",
+      rating: googleRatingMap.get(k.id)?.rating ?? 0,
+      reviews_count: googleRatingMap.get(k.id)?.userRatingsTotal ?? 0,
+      location: k.location,
+      price_range: "",
+      projects_count: 0,
+      description: null,
+      image_url: k.logo_url,
+      created_at: "",
+    }));
   } catch {
     // Silently fail if Kontraio is unavailable
   }

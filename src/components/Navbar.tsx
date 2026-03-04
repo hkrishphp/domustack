@@ -9,6 +9,7 @@ type UserInfo = { full_name: string; email: string; avatar_url: string | null };
 
 const navItems = [
   { href: "/search", label: "Find Contractors" },
+  { href: "/projects/browse", label: "Browse Projects" },
   { href: "/inspirations", label: "Inspirations" },
   { href: "/shop", label: "Shop" },
   { href: "/projects", label: "My Projects" },

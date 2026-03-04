@@ -4,6 +4,8 @@ import Image from "next/image";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor, ContractorService, Review } from "@/lib/supabase";
 import { fetchKontraioContractors } from "@/lib/kontraio";
+import { getGoogleReviewsForContractor } from "@/lib/google-places";
+import GoogleReviews from "@/components/GoogleReviews";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -175,6 +177,13 @@ async function KontraioContractorPage({ slug }: { slug: string }) {
     );
   }
 
+  // Fetch Google reviews for this contractor
+  const googleData = await getGoogleReviewsForContractor(
+    contractor.id,
+    contractor.name,
+    contractor.location
+  );
+
   return (
     <>
       <Navbar />
@@ -260,17 +269,27 @@ async function KontraioContractorPage({ slug }: { slug: string }) {
                 </>
               )}
 
-              <div className="text-center py-8 text-muted-foreground">
-                <p>No reviews yet. Be the first to work with {contractor.name}!</p>
-              </div>
+              <GoogleReviews
+                reviews={googleData.reviews}
+                rating={googleData.rating}
+                totalReviews={googleData.userRatingsTotal}
+                businessName={contractor.name}
+              />
             </div>
 
             {/* Sidebar */}
             <div>
               <div className="bg-card rounded-[var(--radius)] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] sticky top-20">
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary mb-4 inline-block">
-                  New on Domustack
-                </span>
+                {googleData.hasMatch && googleData.rating !== null ? (
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-rating font-semibold text-lg">&#9733; {googleData.rating.toFixed(1)}</span>
+                    <span className="text-muted-foreground text-sm">({googleData.userRatingsTotal} reviews on Google)</span>
+                  </div>
+                ) : (
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary mb-4 inline-block">
+                    New on Domustack
+                  </span>
+                )}
                 <div className="space-y-3 mb-6 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b7355" strokeWidth="2">
