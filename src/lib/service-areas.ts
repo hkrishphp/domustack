@@ -1,27 +1,37 @@
 // ============================================================
-// Service types matching the HireRight Project Intake Spec
+// Lucide icon_name → emoji mapping for Kontraio services
 // ============================================================
 
-export type ServiceType = {
-  slug: string;
-  name: string;
-  icon: string;
+export const ICON_MAP: Record<string, string> = {
+  Wrench: "🔧",
+  Zap: "⚡",
+  Thermometer: "❄️",
+  Home: "🏠",
+  Paintbrush: "🎨",
+  Hammer: "🔨",
+  TreePine: "🌿",
+  Layers: "🧱",
+  SquareStack: "🪵",
+  DoorOpen: "🚪",
+  PanelTop: "🏗️",
+  Trash2: "🏚️",
+  ShieldCheck: "🛡️",
+  Fence: "🏗️",
+  LayoutGrid: "🧱",
+  Grid3X3: "🪨",
+  Cabinet: "🪚",
+  PaintBucket: "🎨",
+  Mountain: "⛰️",
+  Flame: "🔥",
+  Sun: "☀️",
+  Droplets: "💧",
+  Warehouse: "🏠",
+  Bath: "🛁",
 };
 
-export const SERVICE_TYPES: ServiceType[] = [
-  { slug: "plumbing", name: "Plumbing", icon: "🔧" },
-  { slug: "electrical", name: "Electrical", icon: "⚡" },
-  { slug: "painting", name: "Painting", icon: "🎨" },
-  { slug: "drywall", name: "Drywall", icon: "🧱" },
-  { slug: "roofing", name: "Roofing", icon: "🏠" },
-  { slug: "flooring", name: "Flooring", icon: "🪵" },
-  { slug: "hvac", name: "HVAC", icon: "❄️" },
-  { slug: "landscaping", name: "Landscaping", icon: "🌿" },
-  { slug: "fencing", name: "Fencing", icon: "🏗️" },
-  { slug: "concrete", name: "Concrete", icon: "🧱" },
-  { slug: "carpentry", name: "Carpentry", icon: "🪚" },
-  { slug: "handyman", name: "General Handyman", icon: "🔨" },
-];
+export function getServiceIcon(iconName: string): string {
+  return ICON_MAP[iconName] || "🔧";
+}
 
 // ============================================================
 // Property types
@@ -96,8 +106,13 @@ export const US_STATES = [
 // Helpers
 // ============================================================
 
-export function getServiceLabel(slug: string): string {
-  return SERVICE_TYPES.find((s) => s.slug === slug)?.name ?? slug;
+export function getServiceLabel(slug: string, services?: { slug: string; name: string }[]): string {
+  if (services) {
+    const match = services.find((s) => s.slug === slug);
+    if (match) return match.name;
+  }
+  // Fallback: capitalize and clean up slug
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function getPropertyLabel(slug: string): string {

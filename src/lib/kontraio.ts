@@ -45,6 +45,104 @@ export type KontraioCatalogItem = {
   item_type: string | null;
 };
 
+export type KontraioService = {
+  id: string;
+  name: string;
+  slug: string;
+  icon_name: string;
+  sort_order: number;
+};
+
+/**
+ * Fetch the master services list from Kontraio.
+ */
+export async function fetchKontraioServices(): Promise<KontraioService[]> {
+  const kontraio = createKontraioClient();
+  const { data, error } = await kontraio
+    .from("services")
+    .select("id, name, slug, icon_name, sort_order")
+    .order("sort_order");
+
+  if (error || !data) return [];
+  return data as KontraioService[];
+}
+
+// Service area types
+export type KontraioServiceAreasByCity = {
+  city: string;
+  state: string;
+  zip_codes: string[];
+};
+
+/**
+ * Fetch service areas for a company, grouped by city.
+ */
+export async function fetchKontraioServiceAreas(
+  companyId: string
+): Promise<KontraioServiceAreasByCity[]> {
+  const kontraio = createKontraioClient();
+  const { data, error } = await kontraio
+    .from("company_service_areas")
+    .select("zip_code, city, state")
+    .eq("company_id", companyId)
+    .order("city");
+
+  if (error || !data) return [];
+
+  const grouped = new Map<string, KontraioServiceAreasByCity>();
+  for (const row of data as { zip_code: string; city: string; state: string }[]) {
+    const key = `${row.city}|${row.state}`;
+    if (!grouped.has(key)) {
+      grouped.set(key, { city: row.city, state: row.state, zip_codes: [] });
+    }
+    grouped.get(key)!.zip_codes.push(row.zip_code);
+  }
+
+  return Array.from(grouped.values());
+}
+
+/**
+ * Fetch flat list of zip codes a company serves (for filtering).
+ */
+export async function fetchKontraioServiceAreaZips(
+  companyId: string
+): Promise<string[]> {
+  const kontraio = createKontraioClient();
+  const { data } = await kontraio
+    .from("company_service_areas")
+    .select("zip_code")
+    .eq("company_id", companyId);
+
+  return (data ?? []).map((r: { zip_code: string }) => r.zip_code);
+}
+
+/**
+ * Resolve a Domustack user email to a Kontraio company ID.
+ * Looks up the email in Kontraio profiles, then finds their company membership.
+ */
+export async function fetchKontraioCompanyByEmail(
+  email: string
+): Promise<string | null> {
+  const kontraio = createKontraioClient();
+
+  const { data: profile } = await kontraio
+    .from("profiles")
+    .select("id")
+    .eq("email", email)
+    .single();
+
+  if (!profile) return null;
+
+  const { data: member } = await kontraio
+    .from("company_members")
+    .select("company_id")
+    .eq("user_id", profile.id)
+    .limit(1)
+    .single();
+
+  return member?.company_id ?? null;
+}
+
 /**
  * Fetch all contractors (companies) from Kontraio with their owner profile.
  */

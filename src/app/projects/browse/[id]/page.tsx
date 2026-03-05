@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { fetchKontraioServices } from "@/lib/kontraio";
 import {
   getServiceLabel,
   getPropertyLabel,
@@ -18,7 +19,10 @@ type Props = {
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { id } = await params;
-  const supabase = await createServerSupabaseClient();
+  const [supabase, kontraioServices] = await Promise.all([
+    createServerSupabaseClient(),
+    fetchKontraioServices(),
+  ]);
 
   const { data: project } = await supabase
     .from("projects")
@@ -91,7 +95,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                       key={slug}
                       className="text-xs font-medium px-2.5 py-1 rounded-full bg-accent/10 text-accent"
                     >
-                      {getServiceLabel(slug)}
+                      {getServiceLabel(slug, kontraioServices)}
                     </span>
                   ))}
                   <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-accent/15 text-accent">

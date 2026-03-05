@@ -3,7 +3,7 @@ import ContractorActions from "@/components/ContractorActions";
 import Image from "next/image";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor, ContractorService, Review } from "@/lib/supabase";
-import { fetchKontraioContractors } from "@/lib/kontraio";
+import { fetchKontraioContractors, fetchKontraioServiceAreas } from "@/lib/kontraio";
 import { getGoogleReviewsForContractor } from "@/lib/google-places";
 import GoogleReviews from "@/components/GoogleReviews";
 
@@ -177,12 +177,11 @@ async function KontraioContractorPage({ slug }: { slug: string }) {
     );
   }
 
-  // Fetch Google reviews for this contractor
-  const googleData = await getGoogleReviewsForContractor(
-    contractor.id,
-    contractor.name,
-    contractor.location
-  );
+  // Fetch Google reviews and service areas in parallel
+  const [googleData, serviceAreasByCity] = await Promise.all([
+    getGoogleReviewsForContractor(contractor.id, contractor.name, contractor.location),
+    fetchKontraioServiceAreas(contractor.id),
+  ]);
 
   return (
     <>
@@ -263,6 +262,28 @@ async function KontraioContractorPage({ slug }: { slug: string }) {
                           <polyline points="22 4 12 14.01 9 11.01" />
                         </svg>
                         {service}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Service Areas */}
+              {serviceAreasByCity.length > 0 && (
+                <>
+                  <h2 className="text-2xl font-medium mb-4">Service Areas</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                    {serviceAreasByCity.map((area) => (
+                      <div
+                        key={`${area.city}-${area.state}`}
+                        className="bg-card rounded-[var(--radius)] border border-border p-4"
+                      >
+                        <p className="font-medium text-sm mb-1">
+                          {area.city}, {area.state}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {area.zip_codes.join(" · ")}
+                        </p>
                       </div>
                     ))}
                   </div>

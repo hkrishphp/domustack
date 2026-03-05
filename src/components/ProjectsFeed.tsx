@@ -7,12 +7,21 @@ import type { Project } from "@/lib/supabase";
 import { formatRelativeTime } from "@/lib/utils";
 import { getServiceLabel, getTimelineLabel, getBudgetLabel } from "@/lib/service-areas";
 
+type ServiceItem = {
+  slug: string;
+  name: string;
+  icon_name: string;
+};
+
 type Props = {
   initialProjects: Project[];
   serviceFilter: string;
+  services?: ServiceItem[];
+  allowedZips?: string[];
+  isLocationFiltered?: boolean;
 };
 
-export default function ProjectsFeed({ initialProjects, serviceFilter }: Props) {
+export default function ProjectsFeed({ initialProjects, serviceFilter, services, allowedZips, isLocationFiltered }: Props) {
   const [projects, setProjects] = useState(initialProjects);
   const [newAlert, setNewAlert] = useState(false);
 
@@ -33,10 +42,13 @@ export default function ProjectsFeed({ initialProjects, serviceFilter }: Props) 
           const newProject = payload.new as any;
           if (newProject.status !== "open") return;
 
+          // Check zip code filter (contractor service area)
+          if (allowedZips && !allowedZips.includes(newProject.zip_code)) return;
+
           // Check service filter
           if (serviceFilter) {
-            const services = newProject.service_types || [];
-            if (!services.includes(serviceFilter)) return;
+            const svcTypes = newProject.service_types || [];
+            if (!svcTypes.includes(serviceFilter)) return;
           }
 
           // Re-fetch to get joined data
@@ -58,7 +70,7 @@ export default function ProjectsFeed({ initialProjects, serviceFilter }: Props) 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [serviceFilter]);
+  }, [serviceFilter, allowedZips]);
 
   if (projects.length === 0) {
     return (
@@ -68,9 +80,13 @@ export default function ProjectsFeed({ initialProjects, serviceFilter }: Props) 
           <path d="M9 3v18" />
           <path d="M3 9h6" />
         </svg>
-        <h2 className="text-xl font-medium mb-2">No open projects yet</h2>
+        <h2 className="text-xl font-medium mb-2">
+          {isLocationFiltered ? "No open projects in your service area" : "No open projects yet"}
+        </h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          New projects will appear here when homeowners submit them. Check back soon!
+          {isLocationFiltered
+            ? "Projects matching your service area will appear here when homeowners submit them."
+            : "New projects will appear here when homeowners submit them. Check back soon!"}
         </p>
       </div>
     );
@@ -86,7 +102,7 @@ export default function ProjectsFeed({ initialProjects, serviceFilter }: Props) 
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project) => {
-          const services = (project.service_types || []) as string[];
+          const svcSlugs = (project.service_types || []) as string[];
           return (
             <Link
               key={project.id}
@@ -95,17 +111,17 @@ export default function ProjectsFeed({ initialProjects, serviceFilter }: Props) 
             >
               {/* Service badges */}
               <div className="flex flex-wrap gap-2 mb-3">
-                {services.slice(0, 3).map((slug) => (
+                {svcSlugs.slice(0, 3).map((slug) => (
                   <span
                     key={slug}
                     className="text-xs font-medium px-2.5 py-1 rounded-full bg-accent/10 text-accent"
                   >
-                    {getServiceLabel(slug)}
+                    {getServiceLabel(slug, services)}
                   </span>
                 ))}
-                {services.length > 3 && (
+                {svcSlugs.length > 3 && (
                   <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
-                    +{services.length - 3} more
+                    +{svcSlugs.length - 3} more
                   </span>
                 )}
               </div>

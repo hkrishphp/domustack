@@ -1,7 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { SERVICE_TYPES } from "@/lib/service-areas";
+import { fetchKontraioServices, fetchKontraioCompanyByEmail, fetchKontraioServiceAreaZips } from "@/lib/kontraio";
+import { getServiceIcon } from "@/lib/service-areas";
 import ProjectsFeed from "@/components/ProjectsFeed";
 import type { Project } from "@/lib/supabase";
 
@@ -13,7 +14,22 @@ export default async function BrowseProjectsPage({ searchParams }: Props) {
   const params = await searchParams;
   const serviceFilter = params.service || "";
 
-  const supabase = await createServerSupabaseClient();
+  const [supabase, services] = await Promise.all([
+    createServerSupabaseClient(),
+    fetchKontraioServices(),
+  ]);
+
+  // Check if logged-in user is a Kontraio contractor → filter by their service area
+  const { data: { user } } = await supabase.auth.getUser();
+  let serviceAreaZips: string[] | null = null;
+
+  if (user?.email) {
+    const companyId = await fetchKontraioCompanyByEmail(user.email);
+    if (companyId) {
+      const zips = await fetchKontraioServiceAreaZips(companyId);
+      if (zips.length > 0) serviceAreaZips = zips;
+    }
+  }
 
   let query = supabase
     .from("projects")
@@ -25,8 +41,19 @@ export default async function BrowseProjectsPage({ searchParams }: Props) {
     query = query.contains("service_types", [serviceFilter]);
   }
 
+  if (serviceAreaZips) {
+    query = query.in("zip_code", serviceAreaZips);
+  }
+
   const { data } = await query;
   const projects = (data as Project[] | null) ?? [];
+  const isLocationFiltered = serviceAreaZips !== null;
+
+  const serviceList = services.map((s) => ({
+    slug: s.slug,
+    name: s.name,
+    icon_name: s.icon_name,
+  }));
 
   return (
     <>
@@ -58,7 +85,7 @@ export default async function BrowseProjectsPage({ searchParams }: Props) {
               >
                 All
               </Link>
-              {SERVICE_TYPES.map((svc) => (
+              {serviceList.map((svc) => (
                 <Link
                   key={svc.slug}
                   href={`/projects/browse?service=${svc.slug}`}
@@ -68,7 +95,7 @@ export default async function BrowseProjectsPage({ searchParams }: Props) {
                       : "bg-secondary text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {svc.icon} {svc.name}
+                  {getServiceIcon(svc.icon_name)} {svc.name}
                 </Link>
               ))}
             </div>
@@ -79,9 +106,17 @@ export default async function BrowseProjectsPage({ searchParams }: Props) {
         <section className="py-8">
           <div className="mx-auto max-w-[1280px] px-6">
             <p className="text-sm text-muted-foreground mb-6">
-              {projects.length} {projects.length === 1 ? "project" : "projects"} available
+              {projects.length}{" "}
+              {projects.length === 1 ? "project" : "projects"}{" "}
+              {isLocationFiltered ? "in your service area" : "available"}
             </p>
-            <ProjectsFeed initialProjects={projects} serviceFilter={serviceFilter} />
+            <ProjectsFeed
+              initialProjects={projects}
+              serviceFilter={serviceFilter}
+              services={serviceList}
+              allowedZips={serviceAreaZips ?? undefined}
+              isLocationFiltered={isLocationFiltered}
+            />
           </div>
         </section>
       </main>
