@@ -28,27 +28,34 @@ export default function Navbar() {
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
 
-    async function loadUser(userId: string) {
+    async function loadUser(authUser: { id: string; email?: string; user_metadata?: Record<string, string> }) {
       const { data } = await supabase
         .from("users")
         .select("full_name, email, avatar_url")
-        .eq("id", userId)
+        .eq("id", authUser.id)
         .single();
       if (data) {
         setUser(data);
-        setIsLoggedIn(true);
+      } else {
+        // Fallback to auth session metadata (e.g. when users table sync fails)
+        setUser({
+          full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email?.split("@")[0] || "User",
+          email: authUser.email || "",
+          avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || null,
+        });
       }
+      setIsLoggedIn(true);
     }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        loadUser(session.user.id);
+        loadUser(session.user);
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        loadUser(session.user.id);
+        loadUser(session.user);
       } else {
         setIsLoggedIn(false);
         setUser(null);
