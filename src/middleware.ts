@@ -4,6 +4,16 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_ROUTES = ["/projects", "/messages"];
 
 export async function middleware(request: NextRequest) {
+  // If a ?code= param lands on a non-callback route, redirect to /auth/callback
+  // This handles cases where Supabase falls back to Site URL instead of redirectTo
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && !request.nextUrl.pathname.startsWith("/auth/callback")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    url.searchParams.set("code", code);
+    return NextResponse.redirect(url);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

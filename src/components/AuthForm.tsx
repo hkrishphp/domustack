@@ -60,10 +60,16 @@ export default function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
     setError(null);
     const supabase = createBrowserSupabaseClient();
 
+    // Store redirect destination in sessionStorage (Supabase does exact URL matching,
+    // so query params in redirectTo cause it to fall back to Site URL)
+    if (redirectTo && redirectTo !== "/") {
+      sessionStorage.setItem("authRedirectTo", redirectTo);
+    }
+
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
