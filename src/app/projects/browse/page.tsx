@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { fetchKontraioServices, fetchKontraioCompanyByEmail, fetchKontraioServiceAreaZips } from "@/lib/kontraio";
 import { getServiceIcon } from "@/lib/service-areas";
+
+export const dynamic = "force-dynamic";
 import ProjectsFeed from "@/components/ProjectsFeed";
 import type { Project } from "@/lib/supabase";
 

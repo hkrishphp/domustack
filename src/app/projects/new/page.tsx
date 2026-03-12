@@ -2,6 +2,8 @@ import Navbar from "@/components/Navbar";
 import { fetchKontraioServices } from "@/lib/kontraio";
 import ProjectWizard from "@/components/ProjectWizard";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewProjectPage() {
   const services = await fetchKontraioServices();
 

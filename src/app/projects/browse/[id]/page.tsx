@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { fetchKontraioServices } from "@/lib/kontraio";
+
+export const dynamic = "force-dynamic";
 import {
   getServiceLabel,
   getPropertyLabel,

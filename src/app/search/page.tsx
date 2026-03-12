@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor } from "@/lib/supabase";
 import { fetchKontraioContractors } from "@/lib/kontraio";
+
+export const dynamic = "force-dynamic";
 import { getGoogleRatingForContractor } from "@/lib/google-places";
 import Navbar from "@/components/Navbar";
 import SearchForm from "@/components/SearchForm";

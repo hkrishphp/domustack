@@ -3,6 +3,8 @@ import ContractorActions from "@/components/ContractorActions";
 import Image from "next/image";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { Contractor, ContractorService, Review } from "@/lib/supabase";
+
+export const dynamic = "force-dynamic";
 import { fetchKontraioContractors, fetchKontraioServiceAreas } from "@/lib/kontraio";
 import { getGoogleReviewsForContractor } from "@/lib/google-places";
 import GoogleReviews from "@/components/GoogleReviews";
