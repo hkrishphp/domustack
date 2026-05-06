@@ -82,6 +82,15 @@ export default function ProjectFormV1() {
 
       if (insertErr) throw insertErr;
 
+      // GA4 conversion event — fires only after the row is safely persisted.
+      const w = window as unknown as { gtag?: (...args: unknown[]) => void };
+      w.gtag?.("event", "generate_lead", {
+        project_type: projectType,
+        budget_range: budget,
+        has_pictures: imageUrls.length > 0,
+        picture_count: imageUrls.length,
+      });
+
       setSubmitted(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Submission failed.";
