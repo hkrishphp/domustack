@@ -82,14 +82,16 @@ export default function ProjectFormV1() {
 
       if (insertErr) throw insertErr;
 
-      // GA4 conversion event — fires only after the row is safely persisted.
+      // GA4 + Google Ads conversion events — fire only after the row is safely persisted.
       const w = window as unknown as { gtag?: (...args: unknown[]) => void };
-      w.gtag?.("event", "generate_lead", {
+      const params = {
         project_type: projectType,
         budget_range: budget,
         has_pictures: imageUrls.length > 0,
         picture_count: imageUrls.length,
-      });
+      };
+      w.gtag?.("event", "generate_lead", params);
+      w.gtag?.("event", "conversion_event_submit_lead_form", params);
 
       setSubmitted(true);
     } catch (err) {
