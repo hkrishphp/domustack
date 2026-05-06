@@ -9,7 +9,7 @@ export default function FooterV1() {
           <div className="col-span-2 md:col-span-2">
             <Link href="/v1" className="inline-block mb-5 bg-white rounded-lg p-3">
               <Image
-                src="/logos/variant-1/logo-trimmed.png"
+                src="/logos/variant-1/logo-transparent.png"
                 alt="Domustack"
                 width={2199}
                 height={416}
