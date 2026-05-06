@@ -6,6 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 const GA_MEASUREMENT_ID = "G-89NT2NWS04";
+const GADS_CONVERSION_ID = "AW-17601417211";
 const SITE_URL = "https://domustack.com";
 
 export const metadata: Metadata = {
@@ -100,6 +101,7 @@ export default function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${GA_MEASUREMENT_ID}');
+            gtag('config', '${GADS_CONVERSION_ID}');
           `}
         </Script>
         <Script
