@@ -184,7 +184,7 @@ export default function FAQPage() {
             <p className="text-muted-foreground mb-5">We usually reply within one business day.</p>
             <a
               href="mailto:mail@purpleheartpros.com"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-[15px] font-semibold hover:bg-primary/90 transition"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary !text-white rounded-xl text-[15px] font-semibold hover:bg-primary/90 transition"
             >
               Email mail@purpleheartpros.com
             </a>
