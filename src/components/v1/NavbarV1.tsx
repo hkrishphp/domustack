@@ -55,6 +55,16 @@ export default function NavbarV1() {
           ))}
         </nav>
 
+        <a
+          href="#project-form"
+          className="hidden lg:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#6b8e6b] rounded-lg hover:brightness-110 active:scale-[0.98] transition shadow-[0_4px_14px_rgba(107,142,107,0.4)]"
+        >
+          Get Free Quote
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+
         <button
           className="lg:hidden text-foreground p-2"
           aria-label="Menu"
@@ -86,6 +96,13 @@ export default function NavbarV1() {
               </a>
             ))}
           </nav>
+          <a
+            href="#project-form"
+            onClick={() => setMobileOpen(false)}
+            className="block text-center mt-2 py-3 text-[15px] font-semibold text-white bg-[#6b8e6b] rounded-lg shadow-[0_4px_14px_rgba(107,142,107,0.4)]"
+          >
+            Get Free Quote
+          </a>
         </div>
       )}
     </header>

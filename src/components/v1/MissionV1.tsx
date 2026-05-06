@@ -81,7 +81,7 @@ export default function MissionV1() {
           </p>
           <a
             href="#project-form"
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-primary rounded-xl text-[15px] font-semibold hover:bg-white/90 active:scale-[0.98] transition shadow-[0_8px_28px_rgba(255,255,255,0.15)] whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#6b8e6b] text-white rounded-xl text-[15px] font-semibold hover:brightness-110 active:scale-[0.98] transition shadow-[0_8px_28px_rgba(107,142,107,0.5)] whitespace-nowrap"
           >
             Get an honest quote
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
