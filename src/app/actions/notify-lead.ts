@@ -1,30 +1,18 @@
 "use server";
 
-import { createAdminSupabaseClient } from "@/lib/supabase-admin";
 import { sendLeadNotificationEmail, type LeadNotification } from "@/lib/email";
 
 /**
- * Re-reads the inquiry by id (so the client can't fabricate the payload),
- * then emails it to the admin inbox. Designed to be fire-and-forget from the
- * client — failures are logged but never block the homeowner's success state.
+ * Sends an admin notification email for a freshly submitted lead.
+ * Receives the lead data directly from the client (the table's RLS only
+ * allows INSERT for anon, not SELECT, so we can't re-read the row).
+ * Failures are logged but never block the homeowner's success state.
  */
-export async function notifyLeadAction(inquiryId: string): Promise<{ ok?: true; error?: string }> {
-  if (!inquiryId) return { error: "Missing id" };
-
+export async function notifyLeadAction(
+  lead: Omit<LeadNotification, "id">
+): Promise<{ ok?: true; error?: string }> {
   try {
-    const supabase = createAdminSupabaseClient();
-    const { data, error } = await supabase
-      .from("project_inquiries")
-      .select("id, full_name, phone, email, project_type, description, budget_range, inspiration_images")
-      .eq("id", inquiryId)
-      .single();
-
-    if (error || !data) {
-      console.error("[notify-lead] could not load inquiry", error);
-      return { error: "Inquiry not found" };
-    }
-
-    const result = await sendLeadNotificationEmail(data as LeadNotification);
+    const result = await sendLeadNotificationEmail(lead as LeadNotification);
     if (result.error) return { error: result.error };
     return { ok: true };
   } catch (err) {

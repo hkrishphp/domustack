@@ -21,7 +21,7 @@ function client() {
 }
 
 export type LeadNotification = {
-  id: string;
+  id?: string;
   full_name: string;
   phone: string;
   email: string;

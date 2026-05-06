@@ -69,28 +69,26 @@ export default function ProjectFormV1() {
         );
       }
 
-      const { data: inserted, error: insertErr } = await supabase
+      const leadPayload = {
+        full_name: name,
+        phone,
+        email,
+        project_type: projectType,
+        description,
+        budget_range: budget,
+        inspiration_images: imageUrls,
+      };
+
+      const { error: insertErr } = await supabase
         .from("project_inquiries")
-        .insert({
-          full_name: name,
-          phone,
-          email,
-          project_type: projectType,
-          description,
-          budget_range: budget,
-          inspiration_images: imageUrls,
-        })
-        .select("id")
-        .single();
+        .insert(leadPayload);
 
       if (insertErr) throw insertErr;
 
       // Fire-and-forget admin notification — don't block the success state.
-      if (inserted?.id) {
-        notifyLeadAction(inserted.id).catch((e) =>
-          console.warn("[notify-lead] failed", e)
-        );
-      }
+      notifyLeadAction(leadPayload).catch((e) =>
+        console.warn("[notify-lead] failed", e)
+      );
 
       // GA4 + Google Ads conversion events — fire only after the row is safely persisted.
       const w = window as unknown as { gtag?: (...args: unknown[]) => void };
