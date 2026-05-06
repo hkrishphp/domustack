@@ -62,7 +62,7 @@ export default function PrivacyPage() {
           <li>Opt out of certain marketing communications.</li>
           <li>Opt out of &ldquo;sales&rdquo; or &ldquo;sharing&rdquo; of personal information (we do not sell).</li>
         </ul>
-        <p>To exercise any of these rights, email us at <a href="mailto:privacy@domustack.com">privacy@domustack.com</a>.</p>
+        <p>To exercise any of these rights, email us at <a href="mailto:mail@purpleheartpros.com">mail@purpleheartpros.com</a>.</p>
       </Section>
 
       <Section heading="6. Cookies">
@@ -98,7 +98,7 @@ export default function PrivacyPage() {
       <Section heading="10. Contact us">
         <p>
           <strong>Purple Heart Pros LLC</strong><br />
-          Email: <a href="mailto:privacy@domustack.com">privacy@domustack.com</a>
+          Email: <a href="mailto:mail@purpleheartpros.com">mail@purpleheartpros.com</a>
         </p>
       </Section>
     </LegalLayout>

@@ -71,7 +71,7 @@ export default function CookiesPage() {
         <ul>
           <li><strong>Browser settings:</strong> most browsers let you block or delete cookies. See your browser&apos;s help docs.</li>
           <li><strong>Do Not Track:</strong> we honor browser DNT signals where applicable.</li>
-          <li><strong>Opt-out of analytics:</strong> email <a href="mailto:privacy@domustack.com">privacy@domustack.com</a> with the subject line &ldquo;Opt-out of analytics&rdquo;.</li>
+          <li><strong>Opt-out of analytics:</strong> email <a href="mailto:mail@purpleheartpros.com">mail@purpleheartpros.com</a> with the subject line &ldquo;Opt-out of analytics&rdquo;.</li>
         </ul>
         <p>
           Note: blocking strictly necessary cookies will break sign-in and the project form.
@@ -88,7 +88,7 @@ export default function CookiesPage() {
       <Section heading="7. Contact us">
         <p>
           <strong>Purple Heart Pros LLC</strong><br />
-          Email: <a href="mailto:privacy@domustack.com">privacy@domustack.com</a>
+          Email: <a href="mailto:mail@purpleheartpros.com">mail@purpleheartpros.com</a>
         </p>
       </Section>
     </LegalLayout>

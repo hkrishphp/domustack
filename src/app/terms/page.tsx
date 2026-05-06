@@ -122,7 +122,7 @@ export default function TermsPage() {
       <Section heading="13. Contact us">
         <p>
           <strong>Purple Heart Pros LLC</strong><br />
-          Email: <a href="mailto:legal@domustack.com">legal@domustack.com</a>
+          Email: <a href="mailto:mail@purpleheartpros.com">mail@purpleheartpros.com</a>
         </p>
       </Section>
     </LegalLayout>

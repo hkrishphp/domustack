@@ -5,8 +5,8 @@ export default function FooterV1() {
   return (
     <footer className="bg-primary text-white pt-16 pb-8">
       <div className="mx-auto max-w-[1280px] px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12 pb-12 border-b border-white/10">
-          <div className="md:col-span-2">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-12 pb-12 border-b border-white/10">
+          <div className="max-w-[480px]">
             <Link href="/" className="inline-block mb-5">
               <Image
                 src="/logos/variant-1/logo-white.png"
@@ -16,21 +16,18 @@ export default function FooterV1() {
                 className="h-10 w-auto"
               />
             </Link>
-            <p className="text-white/70 text-sm leading-relaxed max-w-[420px]">
+            <p className="text-white/70 text-sm leading-relaxed">
               The trusted marketplace for home renovation. Verified contractors,
               transparent pricing, real reviews — all in one place.
             </p>
           </div>
 
-          <div>
-            <h3 className="font-semibold text-sm mb-4">For Homeowners</h3>
-            <ul className="space-y-2.5 text-sm text-white/70">
-              <li><a href="#project-form" className="hover:text-white transition">Get free quotes</a></li>
-              <li><a href="#how-it-works" className="hover:text-white transition">How it works</a></li>
-              <li><a href="#mission" className="hover:text-white transition">Our mission</a></li>
-              <li><a href="#reviews" className="hover:text-white transition">Reviews</a></li>
-            </ul>
-          </div>
+          <a
+            href="mailto:mail@purpleheartpros.com"
+            className="text-white/70 hover:text-white text-sm transition"
+          >
+            mail@purpleheartpros.com
+          </a>
         </div>
 
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-[13px] text-white/60">
