@@ -1,7 +1,14 @@
 import "server-only";
 import { Resend } from "resend";
 
-const ADMIN_TO = "mail@purpleheartpros.com";
+const ADMIN_TO: string[] = (
+  process.env.ADMIN_NOTIFICATION_EMAILS ??
+  "hari@purpleheartpros.com,lakshmanan@purpleheartpros.com,david@purpleheartpros.com"
+)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 const FROM = process.env.RESEND_FROM || "Domustack <onboarding@resend.dev>";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://domustack.com";
 
