@@ -19,6 +19,28 @@
   --radius: 10px;
 }
 
+/* Variant 1 — Premium Craftsman (Navy + Steel) */
+.theme-craftsman {
+  --color-background: #f7f8fa;
+  --color-foreground: #1a1f2e;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1f2e;
+  --color-primary: #0f2940;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #eef1f5;
+  --color-secondary-foreground: #1a1f2e;
+  --color-muted: #eef1f5;
+  --color-muted-foreground: #6b7280;
+  --color-accent: #6b8e6b;
+  --color-accent-foreground: #ffffff;
+  --color-border: #dfe4ec;
+  --color-rating: #eab308;
+  --color-verified: #2f855a;
+  --radius: 12px;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
