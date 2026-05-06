@@ -5,7 +5,7 @@ export default function HeroV1() {
     <section className="relative min-h-[640px] lg:min-h-[720px] flex items-center overflow-hidden">
       <Image
         src="https://d9hhrg4mnvzow.cloudfront.net/try.northwest-homepros.com/home-renovation/58a0f62b-landing-page-icons-and-graphics-16_10j00e90j00co00000s028.png"
-        alt="Home renovation"
+        alt="Verified renovation contractors working on a modern home interior"
         fill
         className="object-cover"
         priority
