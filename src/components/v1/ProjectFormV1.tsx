@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
+import { notifyLeadAction } from "@/app/actions/notify-lead";
 
 const projectTypes = [
   "Kitchen Remodel",
@@ -68,7 +69,7 @@ export default function ProjectFormV1() {
         );
       }
 
-      const { error: insertErr } = await supabase
+      const { data: inserted, error: insertErr } = await supabase
         .from("project_inquiries")
         .insert({
           full_name: name,
@@ -78,9 +79,18 @@ export default function ProjectFormV1() {
           description,
           budget_range: budget,
           inspiration_images: imageUrls,
-        });
+        })
+        .select("id")
+        .single();
 
       if (insertErr) throw insertErr;
+
+      // Fire-and-forget admin notification — don't block the success state.
+      if (inserted?.id) {
+        notifyLeadAction(inserted.id).catch((e) =>
+          console.warn("[notify-lead] failed", e)
+        );
+      }
 
       // GA4 + Google Ads conversion events — fire only after the row is safely persisted.
       const w = window as unknown as { gtag?: (...args: unknown[]) => void };
