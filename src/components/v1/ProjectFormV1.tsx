@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createBrowserSupabaseClient } from "@/lib/supabase";
 
 const projectTypes = [
   "Kitchen Remodel",
@@ -33,15 +34,61 @@ export default function ProjectFormV1() {
   const [pictures, setPictures] = useState<File[]>([]);
   const [budget, setBudget] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files ? Array.from(e.target.files) : [];
     setPictures(files);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setError(null);
+
+    const supabase = createBrowserSupabaseClient();
+    let imageUrls: string[] = [];
+
+    try {
+      if (pictures.length > 0) {
+        imageUrls = await Promise.all(
+          pictures.map(async (file) => {
+            const ext = file.name.split(".").pop() ?? "jpg";
+            const path = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}.${ext}`;
+            const { data, error: upErr } = await supabase.storage
+              .from("project-inquiries")
+              .upload(path, file, { contentType: file.type });
+            if (upErr) throw upErr;
+            const { data: pub } = supabase.storage
+              .from("project-inquiries")
+              .getPublicUrl(data.path);
+            return pub.publicUrl;
+          })
+        );
+      }
+
+      const { error: insertErr } = await supabase
+        .from("project_inquiries")
+        .insert({
+          full_name: name,
+          phone,
+          email,
+          project_type: projectType,
+          description,
+          budget_range: budget,
+          inspiration_images: imageUrls,
+        });
+
+      if (insertErr) throw insertErr;
+
+      setSubmitted(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Submission failed.";
+      setError(`${msg} Please try again or contact us at mail@purpleheartpros.com.`);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -197,19 +244,27 @@ export default function ProjectFormV1() {
               </div>
             </div>
 
+            {error && (
+              <div className="mt-6 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-red-800 text-sm">
+                {error}
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-8">
               <p className="text-xs text-muted-foreground max-w-[420px]">
                 By submitting, you agree to be contacted by up to 4 verified Domustack contractors. Free, no obligation.
               </p>
               <button
                 type="submit"
-                disabled={!budget}
+                disabled={!budget || submitting}
                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-accent text-white rounded-xl text-[15px] font-semibold hover:brightness-110 active:scale-[0.98] transition shadow-[0_4px_14px_rgba(107,142,107,0.4)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
               >
-                Submit project
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+                {submitting ? "Submitting…" : "Submit project"}
+                {!submitting && (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                )}
               </button>
             </div>
           </form>

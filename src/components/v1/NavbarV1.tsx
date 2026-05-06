@@ -32,7 +32,7 @@ export default function NavbarV1() {
       }`}
     >
       <div className="mx-auto max-w-[1280px] px-6 h-[76px] flex items-center justify-between">
-        <Link href="/v1" className="flex items-center" aria-label="Domustack home">
+        <Link href="/" className="flex items-center" aria-label="Domustack home">
           <Image
             src="/logos/variant-1/logo-transparent.png"
             alt="Domustack"
