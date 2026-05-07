@@ -110,6 +110,30 @@ export default function CostCalculatorV1() {
 
   return (
     <section className="py-8 sm:py-12">
+      {/* Mobile-only sticky summary bar — keeps the live estimate in view while typing */}
+      {result && projectType && (
+        <div className="lg:hidden sticky top-[76px] z-40 bg-white/95 backdrop-blur border-y border-border shadow-[0_4px_12px_rgba(15,41,64,0.05)]">
+          <div className="mx-auto max-w-[1100px] px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[10px] tracking-[0.15em] uppercase font-bold text-muted-foreground truncate">
+                {projectType} · {result.tierLabel}
+              </div>
+              <div className="text-[15px] font-bold text-foreground leading-tight">
+                {formatUSD(result.costLow)} – {formatUSD(result.costHigh)}
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-[10px] tracking-[0.15em] uppercase font-bold text-muted-foreground">
+                Timeline
+              </div>
+              <div className="text-[13px] font-bold text-foreground leading-tight">
+                {result.timelineLowWeeks}–{result.timelineHighWeeks} wk
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto max-w-[1100px] px-4 sm:px-6">
         {/* Form */}
         <form className="bg-white border border-border rounded-2xl p-5 sm:p-7 md:p-10 shadow-[0_12px_40px_rgba(15,41,64,0.06)]">
