@@ -132,7 +132,7 @@ export default function GalleryV1() {
           </p>
           <a
             href="#project-form"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-[15px] font-semibold hover:bg-primary/90 transition shadow-[0_4px_14px_rgba(15,41,64,0.18)]"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary !text-white rounded-xl text-[15px] font-semibold hover:bg-primary/90 transition shadow-[0_4px_14px_rgba(15,41,64,0.18)]"
           >
             Tell us what you&apos;re building
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
