@@ -68,12 +68,6 @@ const items: Item[] = [
     notes: "Linen sofa · Statement art wall · Engineered hardwood",
   },
   {
-    src: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=900&q=80",
-    title: "Vaulted Living Space",
-    category: "Living",
-    notes: "Exposed beams · Stone fireplace · Wide-plank floors",
-  },
-  {
     src: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=900&q=80",
     title: "Custom Fireplace Wall",
     category: "Living",
@@ -107,12 +101,6 @@ const items: Item[] = [
   },
 
   // ── Dining ────────────────────────────────────────────────
-  {
-    src: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=80",
-    title: "Open Dining Conversion",
-    category: "Dining",
-    notes: "Wide opening to kitchen · Statement chandelier · Bench seating",
-  },
   {
     src: "https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&w=900&q=80",
     title: "Banquette Breakfast Nook",
