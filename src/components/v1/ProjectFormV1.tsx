@@ -26,6 +26,38 @@ const budgetRanges = [
 const inputClass =
   "w-full px-4 py-3 bg-background border border-border rounded-lg text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition";
 
+const inputClassError =
+  "w-full px-4 py-3 bg-background border border-red-400 rounded-lg text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-300/40 transition";
+
+// Strip everything that isn't a digit; drop a leading "1" country code.
+function digitsOnly(input: string): string {
+  const d = input.replace(/\D/g, "");
+  return d.length === 11 && d.startsWith("1") ? d.slice(1) : d;
+}
+
+// Live formatter: "(555) 123-4567" as the user types.
+function formatUSPhone(input: string): string {
+  const d = digitsOnly(input).slice(0, 10);
+  if (d.length === 0) return "";
+  if (d.length <= 3) return `(${d}`;
+  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+}
+
+// NANP rules: 10 digits, area code & exchange both [2-9]xx.
+function isValidUSPhone(input: string): boolean {
+  const d = digitsOnly(input);
+  if (d.length !== 10) return false;
+  if (d[0] === "0" || d[0] === "1") return false;
+  if (d[3] === "0" || d[3] === "1") return false;
+  return true;
+}
+
+function isValidEmail(input: string): boolean {
+  // RFC-pragmatic: local@domain.tld with at least one dot in domain, no spaces.
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.trim());
+}
+
 export default function ProjectFormV1() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -37,6 +69,8 @@ export default function ProjectFormV1() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files ? Array.from(e.target.files) : [];
@@ -45,6 +79,22 @@ export default function ProjectFormV1() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    let invalid = false;
+    if (!isValidUSPhone(phone)) {
+      setPhoneError("Enter a valid US phone number, e.g. (555) 123-4567.");
+      invalid = true;
+    } else {
+      setPhoneError(null);
+    }
+    if (!isValidEmail(email)) {
+      setEmailError("Enter a valid email address.");
+      invalid = true;
+    } else {
+      setEmailError(null);
+    }
+    if (invalid) return;
+
     setSubmitting(true);
     setError(null);
 
@@ -154,25 +204,37 @@ export default function ProjectFormV1() {
                 />
               </Field>
 
-              <Field label="Phone" required>
+              <Field label="Phone" required hint={phoneError ?? "US numbers only — (555) 123-4567"} hintIsError={Boolean(phoneError)}>
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    setPhone(formatUSPhone(e.target.value));
+                    if (phoneError) setPhoneError(null);
+                  }}
                   required
+                  inputMode="tel"
+                  autoComplete="tel"
+                  maxLength={14}
                   placeholder="(555) 123-4567"
-                  className={inputClass}
+                  aria-invalid={Boolean(phoneError)}
+                  className={phoneError ? inputClassError : inputClass}
                 />
               </Field>
 
-              <Field label="Email" required>
+              <Field label="Email" required hint={emailError ?? undefined} hintIsError={Boolean(emailError)}>
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError(null);
+                  }}
                   required
+                  autoComplete="email"
                   placeholder="you@example.com"
-                  className={inputClass}
+                  aria-invalid={Boolean(emailError)}
+                  className={emailError ? inputClassError : inputClass}
                 />
               </Field>
 
@@ -296,10 +358,14 @@ export default function ProjectFormV1() {
 function Field({
   label,
   required,
+  hint,
+  hintIsError,
   children,
 }: {
   label: string;
   required?: boolean;
+  hint?: string;
+  hintIsError?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -309,6 +375,15 @@ function Field({
         {required && <span className="text-accent ml-0.5">*</span>}
       </span>
       {children}
+      {hint && (
+        <span
+          className={`block mt-1.5 text-[12px] ${
+            hintIsError ? "text-red-600 font-medium" : "text-muted-foreground"
+          }`}
+        >
+          {hint}
+        </span>
+      )}
     </label>
   );
 }
