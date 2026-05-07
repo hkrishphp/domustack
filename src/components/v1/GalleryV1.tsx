@@ -39,10 +39,10 @@ const items: Item[] = [
     notes: "Linen sofa · Statement art wall · Engineered hardwood",
   },
   {
-    src: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=900&q=80",
-    title: "Cozy Lounge Conversion",
-    category: "Living",
-    notes: "Built-in shelving · Layered lighting · Warm neutrals",
+    src: "https://images.unsplash.com/photo-1558211583-d26f610c1eb1?auto=format&fit=crop&w=900&q=80",
+    title: "Walk-In Closet Build-Out",
+    category: "Custom Build",
+    notes: "Custom millwork · Soft-close drawers · LED rod lighting",
   },
   {
     src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80",
@@ -63,10 +63,10 @@ const items: Item[] = [
     notes: "Composite decking · Pergola overhead · Outdoor kitchen run",
   },
   {
-    src: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=900&q=80",
-    title: "Whole-Home Exterior Refresh",
-    category: "Exterior",
-    notes: "Hardie siding · Standing-seam metal roof · Black-frame windows",
+    src: "https://images.unsplash.com/photo-1505798577917-a65157d3320a?auto=format&fit=crop&w=900&q=80",
+    title: "Hardwood Floor Refinish",
+    category: "Flooring",
+    notes: "Sanded & restained on-site · Satin finish · Whole-home install",
   },
   {
     src: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&w=900&q=80",
