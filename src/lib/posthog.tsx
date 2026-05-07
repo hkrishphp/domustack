@@ -18,9 +18,9 @@ if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
       // diagnose form drop-offs. Switch to maskAllInputs: true if needed for PII.
       maskAllInputs: false,
     },
-    // Sample 50% of sessions — stretches the 5k/month free pool to ~10k visitors.
-    // Bump back to 1 when traffic justifies a paid plan.
-    session_recording_sample_rate: 0.5,
+    // NOTE: Recording sample rate is configured in the PostHog dashboard
+    // (Settings → Project → Session replay → "Sample rate"). Set it to 0.5
+    // there to record 50% of sessions and stretch the free 5k/month pool.
   });
 }
 
