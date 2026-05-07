@@ -1,114 +1,86 @@
-"use client";
-
 import Image from "next/image";
-import { useRef, useState } from "react";
 
-const projects = [
+type Item = {
+  src: string;
+  title: string;
+  category: string;
+  notes: string;
+};
+
+const items: Item[] = [
   {
-    title: "Kitchen Remodel",
-    location: "Austin, TX",
-    before: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80",
-    after: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1200&q=80",
+    src: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80",
+    title: "Modern Two-Tone Kitchen",
+    category: "Kitchen",
+    notes: "Navy lower cabinets · Quartz waterfall island · Brass hardware",
   },
   {
-    title: "Master Bathroom",
-    location: "Seattle, WA",
-    before: "https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=1200&q=80",
-    after: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=80",
+    src: "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?auto=format&fit=crop&w=900&q=80",
+    title: "Open-Concept Cookspace",
+    category: "Kitchen",
+    notes: "Pendant lighting · Marble backsplash · Hidden appliance garage",
   },
   {
-    title: "Living Room Refresh",
-    location: "Charlotte, NC",
-    before: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1200&q=80",
-    after: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+    src: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=900&q=80",
+    title: "Spa-Style Bathroom",
+    category: "Bathroom",
+    notes: "Walk-in shower · Floating vanity · Heated tile floor",
   },
   {
-    title: "Home Exterior",
-    location: "Portland, OR",
-    before: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=1200&q=80",
-    after: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1200&q=80",
+    src: "https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=900&q=80",
+    title: "Wet Room Wet Look",
+    category: "Bathroom",
+    notes: "Floor-to-ceiling tile · Frameless glass · Niche storage",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80",
+    title: "Bright Living Room",
+    category: "Living",
+    notes: "Linen sofa · Statement art wall · Engineered hardwood",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=900&q=80",
+    title: "Cozy Lounge Conversion",
+    category: "Living",
+    notes: "Built-in shelving · Layered lighting · Warm neutrals",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80",
+    title: "Calming Primary Bedroom",
+    category: "Bedroom",
+    notes: "Upholstered headboard · Soft sage palette · Sheer drapes",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=900&q=80",
+    title: "Modern Guest Suite",
+    category: "Bedroom",
+    notes: "Minimal millwork · Brass sconces · Wide-plank flooring",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=900&q=80",
+    title: "Backyard Living Patio",
+    category: "Outdoor",
+    notes: "Composite decking · Pergola overhead · Outdoor kitchen run",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=900&q=80",
+    title: "Whole-Home Exterior Refresh",
+    category: "Exterior",
+    notes: "Hardie siding · Standing-seam metal roof · Black-frame windows",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&w=900&q=80",
+    title: "Built-In Home Office",
+    category: "Home Office",
+    notes: "Custom millwork · Cable management · Acoustic wall panels",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=80",
+    title: "Open Dining Reno",
+    category: "Dining",
+    notes: "Wide opening to kitchen · Statement chandelier · Bench seating",
   },
 ];
-
-function BeforeAfterSlider({
-  before,
-  after,
-  alt,
-}: {
-  before: string;
-  after: string;
-  alt: string;
-}) {
-  const [pos, setPos] = useState(50);
-  const ref = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
-
-  function setFromX(clientX: number) {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const pct = ((clientX - r.left) / r.width) * 100;
-    setPos(Math.max(0, Math.min(100, pct)));
-  }
-
-  return (
-    <div
-      ref={ref}
-      className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl select-none cursor-ew-resize bg-secondary group"
-      onPointerDown={(e) => {
-        dragging.current = true;
-        (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
-        setFromX(e.clientX);
-      }}
-      onPointerMove={(e) => {
-        if (dragging.current) setFromX(e.clientX);
-      }}
-      onPointerUp={(e) => {
-        dragging.current = false;
-        (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
-      }}
-    >
-      <Image
-        src={after}
-        alt={`${alt} — after`}
-        fill
-        className="object-cover"
-        sizes="(max-width: 768px) 100vw, 50vw"
-      />
-
-      <div
-        className="absolute inset-0"
-        style={{ clipPath: `polygon(0 0, ${pos}% 0, ${pos}% 100%, 0 100%)` }}
-      >
-        <Image
-          src={before}
-          alt={`${alt} — before`}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 50vw"
-        />
-      </div>
-
-      <span className="absolute top-3 left-3 bg-black/70 backdrop-blur text-white px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-wider">
-        Before
-      </span>
-      <span className="absolute top-3 right-3 bg-[#6b8e6b] text-white px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-wider">
-        After
-      </span>
-
-      <div
-        className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_10px_rgba(0,0,0,0.5)] pointer-events-none"
-        style={{ left: `${pos}%` }}
-      >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f2940" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 18l-6-6 6-6M15 6l6 6-6 6" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function GalleryV1() {
   return (
@@ -116,26 +88,63 @@ export default function GalleryV1() {
       <div className="mx-auto max-w-[1280px] px-6">
         <div className="max-w-[680px] mx-auto text-center mb-14">
           <p className="text-accent font-semibold text-[13px] tracking-[0.15em] uppercase mb-3">
-            Before &amp; After
+            Inspiration
           </p>
           <h2 className="text-3xl md:text-[44px] font-bold tracking-tight text-foreground leading-[1.1] mb-4">
-            See the transformation
+            Renovations to inspire your project
           </h2>
           <p className="text-muted-foreground text-lg">
-            Real Domustack renovations. Drag the slider to reveal the after.
+            A curated mix of kitchens, baths, living rooms, and outdoor spaces — to
+            spark ideas before you tell us what you&apos;re building.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-          {projects.map((p) => (
-            <div key={p.title}>
-              <BeforeAfterSlider before={p.before} after={p.after} alt={p.title} />
-              <div className="flex items-center justify-between mt-4 px-1">
-                <h3 className="font-bold text-foreground text-[16px]">{p.title}</h3>
-                <span className="text-muted-foreground text-[13px]">{p.location}</span>
+        <ul className="columns-1 sm:columns-2 lg:columns-3 gap-5 [&>li]:mb-5 [&>li]:break-inside-avoid">
+          {items.map((it) => (
+            <li key={it.title}>
+              <figure className="relative overflow-hidden rounded-2xl border border-border bg-secondary group">
+                <div className="relative w-full">
+                  <Image
+                    src={it.src}
+                    alt={it.title}
+                    width={900}
+                    height={1200}
+                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+                <figcaption className="absolute inset-0 flex flex-col justify-end p-5 bg-gradient-to-t from-[#0f2940]/85 via-[#0f2940]/40 to-transparent text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-[11px] tracking-[0.15em] uppercase font-bold text-[#a8c0a4] mb-1">
+                    {it.category}
+                  </span>
+                  <h3 className="text-lg font-bold leading-tight mb-1">{it.title}</h3>
+                  <p className="text-[12.5px] text-white/80 leading-snug">{it.notes}</p>
+                </figcaption>
+                <span className="md:hidden absolute top-3 left-3 bg-black/70 backdrop-blur text-white text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full">
+                  {it.category}
+                </span>
+              </figure>
+              <div className="md:hidden mt-2 px-1">
+                <h3 className="font-bold text-foreground text-[14px] leading-tight">{it.title}</h3>
+                <p className="text-muted-foreground text-[12px]">{it.notes}</p>
               </div>
-            </div>
+            </li>
           ))}
+        </ul>
+
+        <div className="text-center mt-12">
+          <p className="text-muted-foreground text-sm mb-3">
+            Found a look you love?
+          </p>
+          <a
+            href="#project-form"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-[15px] font-semibold hover:bg-primary/90 transition shadow-[0_4px_14px_rgba(15,41,64,0.18)]"
+          >
+            Tell us what you&apos;re building
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>
