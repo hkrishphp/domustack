@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import NavbarV1 from "@/components/v1/NavbarV1";
 import HeroV1 from "@/components/v1/HeroV1";
 import HowItWorksV1 from "@/components/v1/HowItWorksV1";
+import GalleryV1 from "@/components/v1/GalleryV1";
 import MissionV1 from "@/components/v1/MissionV1";
 import ProjectFormV1 from "@/components/v1/ProjectFormV1";
 import PricingStripV1 from "@/components/v1/PricingStripV1";
@@ -32,6 +33,7 @@ export default function Home() {
         <HeroV1 />
         <ProjectFormV1 />
         <HowItWorksV1 />
+        <GalleryV1 />
         <MissionV1 />
         <PricingStripV1 />
         <TestimonialsV1 />
