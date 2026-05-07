@@ -14,12 +14,12 @@ import FooterV1 from "@/components/v1/FooterV1";
 export const metadata: Metadata = {
   title: "Find Verified Renovation Contractors — Free Quotes in 24 Hours",
   description:
-    "Get matched with up to 4 licensed, insured, background-checked renovation contractors near you. Kitchen, bath, roofing, additions, whole-home remodels — free quotes in 24 hours, no fees, no obligation.",
+    "Get matched with up to 4 licensed and insured renovation contractors near you. Kitchen, bath, roofing, additions, whole-home remodels — free quotes in 24 hours, no fees, no obligation.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "Find Verified Renovation Contractors — Free Quotes in 24 Hours",
     description:
-      "Match with up to 4 licensed, insured, background-checked contractors near you. Free quotes in 24 hours.",
+      "Match with up to 4 licensed and insured contractors near you. Free quotes in 24 hours.",
     url: "/",
     type: "website",
   },

@@ -19,16 +19,6 @@ const pillars = [
     ),
   },
   {
-    title: "Background-checked",
-    body: "Identity, criminal record, and business registration verified through trusted partners.",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <circle cx="12" cy="8" r="4" />
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      </svg>
-    ),
-  },
-  {
     title: "Reviewed",
     body: "Only homeowners who hired through Domustack can leave reviews — no fakes.",
     icon: (
@@ -66,7 +56,7 @@ export default function TrustBlockV1() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {pillars.map((p) => (
                 <div key={p.title}>
                   <div className="w-14 h-14 rounded-xl bg-white/10 border border-white/15 text-[#a8c0a4] flex items-center justify-center mb-4">

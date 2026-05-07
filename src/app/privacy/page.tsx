@@ -33,7 +33,7 @@ export default function PrivacyPage() {
         <ul>
           <li>Match your project with up to four verified, licensed, and insured contractors.</li>
           <li>Send quotes, messages, and project updates between you and the contractors you connect with.</li>
-          <li>Verify contractor credentials (license, insurance, background checks).</li>
+          <li>Verify contractor credentials (license, insurance).</li>
           <li>Improve and secure our Services, prevent fraud, and comply with legal obligations.</li>
           <li>Send service emails and, if you opt in, occasional product updates. You can unsubscribe at any time.</li>
         </ul>

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | Domustack",
   },
   description:
-    "Domustack is a free home-renovation marketplace. Tell us about your project and we'll match you with up to 4 licensed, insured, background-checked contractors near you. Free quotes in 24 hours. No fees, no obligation.",
+    "Domustack is a free home-renovation marketplace. Tell us about your project and we'll match you with up to 4 licensed and insured contractors near you. Free quotes in 24 hours. No fees, no obligation.",
   keywords: [
     "home renovation contractors",
     "verified contractors near me",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "home remodeling marketplace",
     "renovation quotes",
     "compare contractor bids",
-    "background checked contractors",
+    "insured home contractors",
     "Domustack",
     "Purple Heart Pros",
   ],
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "Domustack",
     title: "Domustack — Verified Renovation Contractors. Free Quotes in 24 Hours.",
     description:
-      "Match with up to 4 licensed, insured, background-checked contractors near you. Free quotes in 24 hours. No fees, no per-lead surcharge — quotes reflect the work, not the platform tax.",
+      "Match with up to 4 licensed and insured contractors near you. Free quotes in 24 hours. No fees, no per-lead surcharge — quotes reflect the work, not the platform tax.",
     url: SITE_URL,
     locale: "en_US",
   },

@@ -25,8 +25,8 @@ export default function HeroV1() {
             <span className="text-[#a8c0a4]">Free quotes in 24 hours.</span>
           </h1>
           <p className="text-lg lg:text-xl text-white/85 leading-relaxed mb-12 max-w-[560px]">
-            Tell us about your project and we&apos;ll match you with up to 4 licensed,
-            insured, background-checked pros in your area. No fees. No obligation.
+            Tell us about your project and we&apos;ll match you with up to 4 licensed
+            and insured pros in your area. No fees. No obligation.
           </p>
 
           <div className="flex flex-wrap gap-x-10 gap-y-4 items-center">

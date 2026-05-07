@@ -60,7 +60,7 @@ const groups = [
     items: [
       {
         q: "How do you verify contractors?",
-        a: "Every contractor on Domustack passes a 3-step check before we list them: (1) state contractor license verified directly with the issuing authority, (2) general liability and workers' comp insurance certificates on file with current effective dates, and (3) a background check on the principal owner. We re-run all three annually.",
+        a: "Every contractor on Domustack passes a 2-step check before we list them: (1) state contractor license verified directly with the issuing authority, and (2) general liability and workers' comp insurance certificates on file with current effective dates. We re-run both checks annually.",
       },
       {
         q: "What if a contractor's license expires or they lose insurance mid-project?",
