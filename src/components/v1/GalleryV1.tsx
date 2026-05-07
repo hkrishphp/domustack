@@ -74,12 +74,6 @@ const items: Item[] = [
     category: "Home Office",
     notes: "Custom millwork · Cable management · Acoustic wall panels",
   },
-  {
-    src: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=80",
-    title: "Open Dining Reno",
-    category: "Dining",
-    notes: "Wide opening to kitchen · Statement chandelier · Bench seating",
-  },
 ];
 
 export default function GalleryV1() {
