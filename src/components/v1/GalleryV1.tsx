@@ -8,11 +8,12 @@ type Item = {
 };
 
 const items: Item[] = [
+  // ── Kitchens ──────────────────────────────────────────────
   {
     src: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80",
     title: "Modern Two-Tone Kitchen",
     category: "Kitchen",
-    notes: "Navy lower cabinets · Quartz waterfall island · Brass hardware",
+    notes: "Navy lowers · Quartz waterfall island · Brass hardware",
   },
   {
     src: "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?auto=format&fit=crop&w=900&q=80",
@@ -20,6 +21,20 @@ const items: Item[] = [
     category: "Kitchen",
     notes: "Pendant lighting · Marble backsplash · Hidden appliance garage",
   },
+  {
+    src: "https://images.unsplash.com/photo-1556909195-4e2a8f2ec8b7?auto=format&fit=crop&w=900&q=80",
+    title: "Modern Farmhouse Kitchen",
+    category: "Kitchen",
+    notes: "Shaker cabinets · Apron sink · Open shelving",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1600489000022-c2086d79f9d4?auto=format&fit=crop&w=900&q=80",
+    title: "Compact Galley Refresh",
+    category: "Kitchen",
+    notes: "Light wood cabinets · Under-cabinet LEDs · Quartz counters",
+  },
+
+  // ── Bathrooms ─────────────────────────────────────────────
   {
     src: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=900&q=80",
     title: "Spa-Style Bathroom",
@@ -33,17 +48,45 @@ const items: Item[] = [
     notes: "Floor-to-ceiling tile · Frameless glass · Niche storage",
   },
   {
+    src: "https://images.unsplash.com/photo-1564540583246-934409427776?auto=format&fit=crop&w=900&q=80",
+    title: "Soaking Tub Master Bath",
+    category: "Bathroom",
+    notes: "Freestanding tub · Marble surround · Warm sconces",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=900&q=80",
+    title: "Powder Room Refresh",
+    category: "Bathroom",
+    notes: "Wallpaper accent · Vessel sink · Brass fixtures",
+  },
+
+  // ── Living & Family ───────────────────────────────────────
+  {
     src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80",
     title: "Bright Living Room",
     category: "Living",
     notes: "Linen sofa · Statement art wall · Engineered hardwood",
   },
   {
-    src: "https://images.unsplash.com/photo-1558211583-d26f610c1eb1?auto=format&fit=crop&w=900&q=80",
-    title: "Walk-In Closet Build-Out",
-    category: "Custom Build",
-    notes: "Custom millwork · Soft-close drawers · LED rod lighting",
+    src: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=900&q=80",
+    title: "Vaulted Living Space",
+    category: "Living",
+    notes: "Exposed beams · Stone fireplace · Wide-plank floors",
   },
+  {
+    src: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=900&q=80",
+    title: "Custom Fireplace Wall",
+    category: "Living",
+    notes: "Stacked stone · Built-in TV niche · Hidden cable management",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80",
+    title: "Sunken Conversation Pit",
+    category: "Living",
+    notes: "Built-in seating · Curved walls · Ambient lighting",
+  },
+
+  // ── Bedrooms ──────────────────────────────────────────────
   {
     src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80",
     title: "Calming Primary Bedroom",
@@ -57,22 +100,116 @@ const items: Item[] = [
     notes: "Minimal millwork · Brass sconces · Wide-plank flooring",
   },
   {
+    src: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80",
+    title: "Accent-Wall Bedroom",
+    category: "Bedroom",
+    notes: "Painted feature wall · Ceiling fan upgrade · Built-in nightstands",
+  },
+
+  // ── Dining ────────────────────────────────────────────────
+  {
+    src: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=80",
+    title: "Open Dining Conversion",
+    category: "Dining",
+    notes: "Wide opening to kitchen · Statement chandelier · Bench seating",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&w=900&q=80",
+    title: "Banquette Breakfast Nook",
+    category: "Dining",
+    notes: "Built-in bench · Window walls · Hidden storage",
+  },
+
+  // ── Outdoor ──────────────────────────────────────────────
+  {
     src: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=900&q=80",
     title: "Backyard Living Patio",
     category: "Outdoor",
     notes: "Composite decking · Pergola overhead · Outdoor kitchen run",
   },
   {
-    src: "https://images.unsplash.com/photo-1505798577917-a65157d3320a?auto=format&fit=crop&w=900&q=80",
-    title: "Hardwood Floor Refinish",
-    category: "Flooring",
-    notes: "Sanded & restained on-site · Satin finish · Whole-home install",
+    src: "https://images.unsplash.com/photo-1571055107559-3e67626fa8be?auto=format&fit=crop&w=900&q=80",
+    title: "Pool & Cabana",
+    category: "Outdoor",
+    notes: "Travertine deck · Cabana shade · LED pool lighting",
   },
+  {
+    src: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=900&q=80",
+    title: "Pergola & Outdoor Grill",
+    category: "Outdoor",
+    notes: "Cedar pergola · Built-in grill island · String lighting",
+  },
+
+  // ── Custom Builds & Millwork ──────────────────────────────
+  {
+    src: "https://images.unsplash.com/photo-1558211583-d26f610c1eb1?auto=format&fit=crop&w=900&q=80",
+    title: "Walk-In Closet Build-Out",
+    category: "Custom Build",
+    notes: "Custom millwork · Soft-close drawers · LED rod lighting",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=900&q=80",
+    title: "Custom Library Wall",
+    category: "Custom Build",
+    notes: "Floor-to-ceiling shelves · Rolling ladder · Hidden door",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?auto=format&fit=crop&w=900&q=80",
+    title: "Wine Cellar Build",
+    category: "Custom Build",
+    notes: "Climate control · Custom racking · Stone accent wall",
+  },
+
+  // ── Home Office ───────────────────────────────────────────
   {
     src: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&w=900&q=80",
     title: "Built-In Home Office",
     category: "Home Office",
     notes: "Custom millwork · Cable management · Acoustic wall panels",
+  },
+
+  // ── Flooring ──────────────────────────────────────────────
+  {
+    src: "https://images.unsplash.com/photo-1505798577917-a65157d3320a?auto=format&fit=crop&w=900&q=80",
+    title: "Hardwood Floor Refinish",
+    category: "Flooring",
+    notes: "Sanded & restained on-site · Satin finish · Whole-home install",
+  },
+
+  // ── Staircase ─────────────────────────────────────────────
+  {
+    src: "https://images.unsplash.com/photo-1571508601891-ca5e7a713859?auto=format&fit=crop&w=900&q=80",
+    title: "Open-Riser Staircase",
+    category: "Staircase",
+    notes: "Steel stringer · Oak treads · Glass railing",
+  },
+
+  // ── Mudroom / Pantry / Foyer ──────────────────────────────
+  {
+    src: "https://images.unsplash.com/photo-1581622558661-d0e3b1c0c87e?auto=format&fit=crop&w=900&q=80",
+    title: "Mudroom Conversion",
+    category: "Mudroom",
+    notes: "Custom cubbies · Slate floor · Coat hooks",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1600573472556-7a7b7e1a9eef?auto=format&fit=crop&w=900&q=80",
+    title: "Walk-In Pantry Build",
+    category: "Pantry",
+    notes: "Floor-to-ceiling shelves · Pull-out drawers · Under-shelf LEDs",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=900&q=80",
+    title: "Modern Foyer Refresh",
+    category: "Entry",
+    notes: "Statement light · Bench & hooks · Tile floor",
+  },
+
+  // ── Basement / Conversion ────────────────────────────────
+  {
+    src: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80",
+    title: "Finished Basement",
+    category: "Basement",
+    notes: "Egress windows · Recessed lighting · Built-in entertainment",
   },
 ];
 
@@ -88,8 +225,9 @@ export default function GalleryV1() {
             Renovations to inspire your project
           </h2>
           <p className="text-muted-foreground text-lg">
-            A curated mix of kitchens, baths, living rooms, and outdoor spaces — to
-            spark ideas before you tell us what you&apos;re building.
+            A curated mix of kitchens, baths, additions, custom builds, and
+            outdoor work — to spark ideas before you tell us what you&apos;re
+            building.
           </p>
         </div>
 
