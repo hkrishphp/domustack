@@ -16,16 +16,19 @@ const inputClass =
 const inputClassError =
   "w-full px-4 py-3 bg-background border border-red-400 rounded-lg text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-300/40 transition";
 
-const TIERS: { id: Tier; label: string; sub: string }[] = [
-  { id: "basic", label: "Basic", sub: "Builder-grade" },
-  { id: "mid", label: "Mid-Range", sub: "Quality finishes" },
-  { id: "premium", label: "Premium", sub: "Luxury / custom" },
-];
-
 const PROJECT_TYPES: { id: ProjectType; label: string; emoji: string }[] = [
   { id: "bathroom", label: "Bathroom", emoji: "🛁" },
   { id: "kitchen", label: "Kitchen", emoji: "🍳" },
+  { id: "roofing", label: "Roofing", emoji: "🏠" },
+  { id: "painting", label: "Painting", emoji: "🎨" },
 ];
+
+const SIZE_LABEL: Record<ProjectType, { label: string; placeholder: string }> = {
+  bathroom: { label: "Room size", placeholder: "50" },
+  kitchen:  { label: "Room size", placeholder: "150" },
+  roofing:  { label: "Roof area", placeholder: "1800" },
+  painting: { label: "Home size", placeholder: "1500" },
+};
 
 function isValidUSZip(input: string): boolean {
   return /^\d{5}(-\d{4})?$/.test(input.trim());
@@ -35,9 +38,35 @@ export default function CostCalculatorV1() {
   const [projectType, setProjectType] = useState<ProjectType | "">("");
   const [tier, setTier] = useState<Tier>("mid"); // default Mid-Range
   const [zipCode, setZipCode] = useState("");
+  const [zipAutofilled, setZipAutofilled] = useState(false);
   const [squareFeet, setSquareFeet] = useState("");
   const [beforePhoto, setBeforePhoto] = useState<File | null>(null);
   const [afterPhoto, setAfterPhoto] = useState<File | null>(null);
+
+  // Auto-fill ZIP from the visitor's IP on first load (best-effort).
+  // Skipped if they've already typed something; failures are silent.
+  useEffect(() => {
+    if (zipCode) return;
+    let cancelled = false;
+    fetch("https://ipapi.co/json/")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { postal?: string; country_code?: string } | null) => {
+        if (cancelled || !data) return;
+        if (data.country_code !== "US") return;
+        if (data.postal && /^\d{5}$/.test(data.postal)) {
+          setZipCode(data.postal);
+          setZipAutofilled(true);
+        }
+      })
+      .catch(() => {
+        /* ad blocker or rate limit — homeowner can type their own ZIP */
+      });
+    return () => {
+      cancelled = true;
+    };
+    // Run once on mount only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const beforePreview = useMemo(
     () => (beforePhoto ? URL.createObjectURL(beforePhoto) : null),
@@ -86,7 +115,11 @@ export default function CostCalculatorV1() {
     <section className="py-8 sm:py-12">
       <div className="mx-auto max-w-[960px] px-4 sm:px-6">
         {/* Live result panel — pinned at the top so it's always visible */}
-        <ResultPanel result={result} projectType={projectType} />
+        <ResultPanel
+          result={result}
+          projectType={projectType}
+          hasBothPhotos={Boolean(beforePhoto && afterPhoto)}
+        />
 
         {/* Form below */}
         <form className="bg-white border border-border rounded-2xl p-5 sm:p-7 md:p-10 shadow-[0_12px_40px_rgba(15,41,64,0.06)] mt-6">
@@ -130,66 +163,42 @@ export default function CostCalculatorV1() {
                 onChange={(e) => {
                   const v = e.target.value.replace(/[^\d-]/g, "").slice(0, 10);
                   setZipCode(v);
+                  if (zipAutofilled) setZipAutofilled(false);
                 }}
                 inputMode="numeric"
                 autoComplete="postal-code"
                 placeholder="78701"
                 className={zipShownAsInvalid ? inputClassError : inputClass}
               />
-              {zipShownAsInvalid && (
+              {zipShownAsInvalid ? (
                 <span className="block mt-1.5 text-[12px] text-red-600 font-medium">
                   Enter a valid 5-digit US ZIP code.
                 </span>
-              )}
+              ) : zipAutofilled ? (
+                <span className="block mt-1.5 text-[12px] text-muted-foreground">
+                  Auto-detected from your location — change if needed.
+                </span>
+              ) : null}
             </label>
 
             <label className="block">
               <span className="block text-[13px] font-semibold text-foreground mb-1.5">
-                Room size <span className="text-muted-foreground font-normal">(optional, sq ft)</span>
+                {projectType ? SIZE_LABEL[projectType].label : "Room size"}{" "}
+                <span className="text-muted-foreground font-normal">(optional, sq ft)</span>
               </span>
               <input
                 type="number"
                 min={20}
-                max={1000}
+                max={10000}
                 value={squareFeet}
                 onChange={(e) => setSquareFeet(e.target.value)}
-                placeholder={projectType === "kitchen" ? "150" : "50"}
+                placeholder={projectType ? SIZE_LABEL[projectType].placeholder : "50"}
                 className={inputClass}
               />
             </label>
           </div>
 
-          {/* Tier (no asterisk — defaults to Mid-Range) */}
-          <div className="mb-7">
-            <label className="block text-[13px] font-semibold text-foreground mb-3">
-              Quality tier
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {TIERS.map((t) => {
-                const active = tier === t.id;
-                return (
-                  <button
-                    type="button"
-                    key={t.id}
-                    onClick={() => setTier(t.id)}
-                    className={
-                      "px-4 py-4 rounded-xl border text-left transition " +
-                      (active
-                        ? "bg-primary !text-white border-primary shadow-[0_4px_14px_rgba(15,41,64,0.18)]"
-                        : "bg-white text-foreground border-border hover:border-primary/40")
-                    }
-                  >
-                    <div className="font-semibold">{t.label}</div>
-                    <div className={`text-[12px] mt-0.5 ${active ? "text-white/75" : "text-muted-foreground"}`}>
-                      {t.sub}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Photos */}
+          {/* Photos — used to auto-detect quality tier (mid-range default until both uploaded) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <PhotoField
               label="Current photo (before)"
@@ -206,7 +215,8 @@ export default function CostCalculatorV1() {
           </div>
 
           <p className="text-xs text-muted-foreground mt-4">
-            Photos preview locally on your device and give your matched contractor context — they don&apos;t affect the cost estimate yet.
+            Upload both photos and our AI infers the quality tier (Basic / Mid-Range / Premium)
+            from the finishes shown — until then we use a Mid-Range estimate by default.
           </p>
         </form>
 
@@ -228,9 +238,11 @@ export default function CostCalculatorV1() {
 function ResultPanel({
   result,
   projectType,
+  hasBothPhotos,
 }: {
   result: EstimateResult | null;
   projectType: ProjectType | "";
+  hasBothPhotos: boolean;
 }) {
   if (!result) {
     return (
@@ -255,9 +267,19 @@ function ResultPanel({
         }}
       />
       <div className="relative">
-        <p className="text-[#a8c0a4] font-semibold text-[11px] sm:text-[12px] tracking-[0.2em] uppercase mb-2 sm:mb-3">
-          {projectType ? `Estimated ${projectType}` : "Estimated cost"} · {result.tierLabel}
-        </p>
+        <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
+          <p className="text-[#a8c0a4] font-semibold text-[11px] sm:text-[12px] tracking-[0.2em] uppercase">
+            {projectType ? `Estimated ${projectType}` : "Estimated cost"} · {result.tierLabel}
+          </p>
+          <span
+            className={
+              "text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full " +
+              (hasBothPhotos ? "bg-[#a8c0a4]/20 text-[#a8c0a4]" : "bg-white/10 text-white/60")
+            }
+          >
+            {hasBothPhotos ? "From your photos" : "Default tier"}
+          </span>
+        </div>
         <div className="text-[28px] sm:text-4xl md:text-[44px] font-bold tracking-tight leading-[1.05] mb-4">
           {formatUSD(result.costLow)} – {formatUSD(result.costHigh)}
         </div>

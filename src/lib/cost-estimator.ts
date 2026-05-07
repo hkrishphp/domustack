@@ -5,7 +5,7 @@
 // vision-AI backend later.
 // ============================================================
 
-export type ProjectType = "bathroom" | "kitchen";
+export type ProjectType = "bathroom" | "kitchen" | "roofing" | "painting";
 export type Tier = "basic" | "mid" | "premium";
 
 // National-average cost ranges (2026 dollars).
@@ -20,12 +20,25 @@ const BASE_RANGES: Record<ProjectType, Record<Tier, [number, number]>> = {
     mid: [30_000, 75_000],
     premium: [75_000, 150_000],
   },
+  roofing: {
+    basic: [5_000, 15_000],     // 3-tab asphalt, like-for-like
+    mid: [10_000, 25_000],      // architectural / dimensional shingles
+    premium: [25_000, 80_000],  // metal, slate, tile
+  },
+  painting: {
+    basic: [1_500, 5_000],      // walls only, single coat
+    mid: [4_000, 12_000],       // full prep, premium paint, walls + trim
+    premium: [10_000, 30_000],  // full skim, designer paint, walls + trim + cabinets + ceilings
+  },
 };
 
-// Average room size in sqft — used when the homeowner skips the size input.
+// Average size in sqft — used when the homeowner skips the size input.
+// For roofing, "size" = roof area sqft. For painting, "size" = home living area.
 const AVG_SQFT: Record<ProjectType, number> = {
   bathroom: 50,
   kitchen: 150,
+  roofing: 1_800,
+  painting: 1_500,
 };
 
 // Cost-of-living multiplier by first digit of US ZIP code.
@@ -96,6 +109,48 @@ const TIER_INCLUSIONS: Record<ProjectType, Record<Tier, string[]>> = {
       "Custom island & walk-in pantry",
     ],
   },
+  roofing: {
+    basic: [
+      "3-tab asphalt shingles (15–20 yr warranty)",
+      "Standard 15-lb felt underlayment",
+      "Like-for-like flashing & vents",
+      "Gutter cleaning included",
+    ],
+    mid: [
+      "Architectural / dimensional shingles (30 yr warranty)",
+      "Synthetic underlayment",
+      "Ice & water shield at eaves and valleys",
+      "New ridge vents + drip edge",
+    ],
+    premium: [
+      "Metal, slate, or clay tile",
+      "50-yr+ manufacturer warranty",
+      "Full deck inspection & repair",
+      "Custom flashing, copper accents",
+      "Solar-ready prep available",
+    ],
+  },
+  painting: {
+    basic: [
+      "Walls only (no trim or ceilings)",
+      "One coat of builder-grade paint",
+      "Patch & sand obvious nail holes",
+      "Drop cloths and basic furniture move",
+    ],
+    mid: [
+      "Two coats with quality primer",
+      "Premium paint (Sherwin-Williams Cashmere, Benjamin Moore Regal)",
+      "Walls + trim + doors",
+      "Full prep: caulk, sand, fill, mask",
+    ],
+    premium: [
+      "Full skim coat for smooth walls",
+      "Designer paint (Farrow & Ball, Benjamin Moore Aura)",
+      "Walls + trim + ceilings + cabinets",
+      "On-site color consultation",
+      "Lead-safe practices for older homes",
+    ],
+  },
 };
 
 export type Permit = {
@@ -117,6 +172,16 @@ const TIMELINE_WEEKS: Record<ProjectType, Record<Tier, [number, number]>> = {
     mid: [6, 10],
     premium: [10, 16],
   },
+  roofing: {
+    basic: [1, 1],
+    mid: [1, 2],
+    premium: [2, 4],
+  },
+  painting: {
+    basic: [1, 1],
+    mid: [1, 2],
+    premium: [2, 4],
+  },
 };
 
 const PERMIT_CHECKLIST: Record<ProjectType, Permit[]> = {
@@ -132,6 +197,17 @@ const PERMIT_CHECKLIST: Record<ProjectType, Permit[]> = {
     { name: "Electrical Permit", description: "Required for new circuits, dedicated appliance lines, recessed lighting.", usuallyRequired: true },
     { name: "Gas Permit", description: "Required when installing or relocating a gas range / cooktop line.", usuallyRequired: false },
     { name: "Mechanical Permit", description: "Required when ducting a new range hood through walls or roof.", usuallyRequired: false },
+  ],
+  roofing: [
+    { name: "Building Permit (Re-Roof)", description: "Required by most US municipalities for full tear-off & replacement.", usuallyRequired: true },
+    { name: "Tear-Off / Disposal Permit", description: "Some cities require a separate permit for the dumpster and old-material disposal.", usuallyRequired: false },
+    { name: "Wind / Hurricane Code Compliance", description: "Required in coastal and high-wind zones (FL, TX coast, etc.) — extra fasteners, secondary water barrier.", usuallyRequired: false },
+    { name: "HOA Approval", description: "If you're in an HOA community, material & color often need ARC (architectural review) approval.", usuallyRequired: false },
+  ],
+  painting: [
+    { name: "No Permit (Most Cases)", description: "Standard interior or exterior repaint of an existing home does not require a permit anywhere in the US.", usuallyRequired: true },
+    { name: "Lead-Safe Disclosure (RRP)", description: "Federal EPA rule for homes built before 1978 — your contractor must be RRP-certified.", usuallyRequired: false },
+    { name: "HOA Approval", description: "Exterior color changes in an HOA community usually need ARC (architectural review) approval.", usuallyRequired: false },
   ],
 };
 
