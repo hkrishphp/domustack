@@ -29,11 +29,14 @@ const TIERS: { id: Tier; label: string; sub: string }[] = [
   { id: "premium", label: "Premium", sub: "Luxury / custom" },
 ];
 
-const SIZE_LABEL: Record<ProjectType, { label: string; placeholder: string }> = {
-  bathroom: { label: "Room size", placeholder: "50" },
-  kitchen:  { label: "Room size", placeholder: "150" },
-  roofing:  { label: "Roof area", placeholder: "1800" },
-  painting: { label: "Home size", placeholder: "1500" },
+const SIZE_INFO: Record<
+  ProjectType,
+  { label: string; placeholder: string; min: number; max: number }
+> = {
+  bathroom: { label: "Room size",  placeholder: "50",   min: 20,  max: 250 },
+  kitchen:  { label: "Room size",  placeholder: "150",  min: 40,  max: 800 },
+  roofing:  { label: "Roof area",  placeholder: "1800", min: 400, max: 8000 },
+  painting: { label: "Home size",  placeholder: "1500", min: 200, max: 8000 },
 };
 
 function isValidUSZip(input: string): boolean {
@@ -170,18 +173,40 @@ export default function CostCalculatorV1() {
 
             <label className="block">
               <span className="block text-[13px] font-semibold text-foreground mb-1.5">
-                {projectType ? SIZE_LABEL[projectType].label : "Room size"}{" "}
+                {projectType ? SIZE_INFO[projectType].label : "Room size"}{" "}
                 <span className="text-muted-foreground font-normal">(optional, sq ft)</span>
               </span>
               <input
                 type="number"
-                min={20}
-                max={10000}
+                min={projectType ? SIZE_INFO[projectType].min : 20}
+                max={projectType ? SIZE_INFO[projectType].max : 8000}
                 value={squareFeet}
-                onChange={(e) => setSquareFeet(e.target.value)}
-                placeholder={projectType ? SIZE_LABEL[projectType].placeholder : "50"}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  if (raw === "") {
+                    setSquareFeet("");
+                    return;
+                  }
+                  // Strip non-digits then clamp to the per-project max so users
+                  // can't enter "20000000".
+                  const digits = raw.replace(/\D/g, "").slice(0, 6);
+                  if (!digits) {
+                    setSquareFeet("");
+                    return;
+                  }
+                  const max = projectType ? SIZE_INFO[projectType].max : 8000;
+                  const n = Math.min(Number(digits), max);
+                  setSquareFeet(String(n));
+                }}
+                placeholder={projectType ? SIZE_INFO[projectType].placeholder : "50"}
                 className={inputClass}
               />
+              {projectType && (
+                <span className="block mt-1.5 text-[12px] text-muted-foreground">
+                  Typical range: {SIZE_INFO[projectType].min.toLocaleString()}
+                  –{SIZE_INFO[projectType].max.toLocaleString()} sq ft
+                </span>
+              )}
             </label>
           </div>
 
