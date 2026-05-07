@@ -168,18 +168,6 @@ const items: Item[] = [
 
   // ── Mudroom / Pantry / Foyer ──────────────────────────────
   {
-    src: "https://images.unsplash.com/photo-1581622558661-d0e3b1c0c87e?auto=format&fit=crop&w=900&q=80",
-    title: "Mudroom Conversion",
-    category: "Mudroom",
-    notes: "Custom cubbies · Slate floor · Coat hooks",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1600573472556-7a7b7e1a9eef?auto=format&fit=crop&w=900&q=80",
-    title: "Walk-In Pantry Build",
-    category: "Pantry",
-    notes: "Floor-to-ceiling shelves · Pull-out drawers · Under-shelf LEDs",
-  },
-  {
     src: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=900&q=80",
     title: "Modern Foyer Refresh",
     category: "Entry",
