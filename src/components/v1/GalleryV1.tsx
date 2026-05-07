@@ -22,12 +22,6 @@ const items: Item[] = [
     notes: "Pendant lighting · Marble backsplash · Hidden appliance garage",
   },
   {
-    src: "https://images.unsplash.com/photo-1556909195-4e2a8f2ec8b7?auto=format&fit=crop&w=900&q=80",
-    title: "Modern Farmhouse Kitchen",
-    category: "Kitchen",
-    notes: "Shaker cabinets · Apron sink · Open shelving",
-  },
-  {
     src: "https://images.unsplash.com/photo-1600489000022-c2086d79f9d4?auto=format&fit=crop&w=900&q=80",
     title: "Compact Galley Refresh",
     category: "Kitchen",
