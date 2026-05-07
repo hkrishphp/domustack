@@ -25,6 +25,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Auth UI is hidden for now — old Google-cached links should land on home.
+      { source: "/auth/sign-up", destination: "/", permanent: true },
+      { source: "/auth/sign-in", destination: "/", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
