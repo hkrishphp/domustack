@@ -23,6 +23,13 @@ const budgetRanges = [
   "$100,000+",
 ];
 
+const US_STATES = [
+  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
+  "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
+  "VA","WA","WV","WI","WY","DC",
+];
+
 const inputClass =
   "w-full px-4 py-3 bg-background border border-border rounded-lg text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition";
 
@@ -58,6 +65,11 @@ function isValidEmail(input: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.trim());
 }
 
+// US ZIP: 5 digits, optionally followed by -4 ZIP+4. We only require 5.
+function isValidUSZip(input: string): boolean {
+  return /^\d{5}(-\d{4})?$/.test(input.trim());
+}
+
 export default function ProjectFormV1() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -66,11 +78,16 @@ export default function ProjectFormV1() {
   const [description, setDescription] = useState("");
   const [pictures, setPictures] = useState<File[]>([]);
   const [budget, setBudget] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [stateCode, setStateCode] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [zipError, setZipError] = useState<string | null>(null);
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files ? Array.from(e.target.files) : [];
@@ -92,6 +109,12 @@ export default function ProjectFormV1() {
       invalid = true;
     } else {
       setEmailError(null);
+    }
+    if (!isValidUSZip(zipCode)) {
+      setZipError("Enter a valid 5-digit US ZIP code.");
+      invalid = true;
+    } else {
+      setZipError(null);
     }
     if (invalid) return;
 
@@ -127,6 +150,10 @@ export default function ProjectFormV1() {
         description,
         budget_range: budget,
         inspiration_images: imageUrls,
+        street_address: streetAddress.trim(),
+        city: city.trim(),
+        state: stateCode,
+        zip_code: zipCode.trim(),
       };
 
       const { error: insertErr } = await supabase
@@ -253,6 +280,75 @@ export default function ProjectFormV1() {
                   ))}
                 </select>
               </Field>
+
+              <div className="md:col-span-2">
+                <Field label="Street address" required>
+                  <input
+                    type="text"
+                    value={streetAddress}
+                    onChange={(e) => setStreetAddress(e.target.value)}
+                    required
+                    autoComplete="street-address"
+                    placeholder="123 Main St"
+                    className={inputClass}
+                  />
+                </Field>
+              </div>
+
+              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-6 gap-5">
+                <div className="sm:col-span-3">
+                  <Field label="City" required>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      required
+                      autoComplete="address-level2"
+                      placeholder="Austin"
+                      className={inputClass}
+                    />
+                  </Field>
+                </div>
+
+                <div className="sm:col-span-1">
+                  <Field label="State" required>
+                    <select
+                      value={stateCode}
+                      onChange={(e) => setStateCode(e.target.value)}
+                      required
+                      autoComplete="address-level1"
+                      className={inputClass}
+                    >
+                      <option value="">--</option>
+                      {US_STATES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <Field label="ZIP code" required hint={zipError ?? undefined} hintIsError={Boolean(zipError)}>
+                    <input
+                      type="text"
+                      value={zipCode}
+                      onChange={(e) => {
+                        // keep digits + optional one dash, max 10 chars (12345-6789)
+                        const v = e.target.value.replace(/[^\d-]/g, "").slice(0, 10);
+                        setZipCode(v);
+                        if (zipError) setZipError(null);
+                      }}
+                      required
+                      inputMode="numeric"
+                      autoComplete="postal-code"
+                      placeholder="78701"
+                      maxLength={10}
+                      aria-invalid={Boolean(zipError)}
+                      className={zipError ? inputClassError : inputClass}
+                    />
+                  </Field>
+                </div>
+              </div>
 
               <div className="md:col-span-2">
                 <Field label="Project description" required>

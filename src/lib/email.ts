@@ -29,6 +29,10 @@ export type LeadNotification = {
   description: string;
   budget_range: string;
   inspiration_images: string[];
+  street_address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
 };
 
 export async function sendLeadNotificationEmail(lead: LeadNotification) {
@@ -38,6 +42,10 @@ export async function sendLeadNotificationEmail(lead: LeadNotification) {
     return { skipped: true };
   }
 
+  const addressLine = [lead.street_address, [lead.city, lead.state].filter(Boolean).join(", "), lead.zip_code]
+    .filter(Boolean)
+    .join(" · ");
+
   const subject = `New lead: ${lead.full_name} — ${lead.project_type} (${lead.budget_range})`;
   const text = [
     `A new project inquiry was submitted on Domustack.`,
@@ -45,6 +53,7 @@ export async function sendLeadNotificationEmail(lead: LeadNotification) {
     `Name:        ${lead.full_name}`,
     `Phone:       ${lead.phone}`,
     `Email:       ${lead.email}`,
+    `Address:     ${addressLine || "—"}`,
     `Project:     ${lead.project_type}`,
     `Budget:      ${lead.budget_range}`,
     `Pictures:    ${lead.inspiration_images.length}`,
@@ -68,6 +77,7 @@ export async function sendLeadNotificationEmail(lead: LeadNotification) {
       <table style="width:100%;border-collapse:collapse;font-size:14px">
         <tr><td style="padding:6px 0;color:#6b7280;width:120px">Phone</td><td><a href="tel:${escapeAttr(lead.phone)}" style="color:#0f2940">${escapeHtml(lead.phone)}</a></td></tr>
         <tr><td style="padding:6px 0;color:#6b7280">Email</td><td><a href="mailto:${escapeAttr(lead.email)}" style="color:#0f2940">${escapeHtml(lead.email)}</a></td></tr>
+        ${addressLine ? `<tr><td style="padding:6px 0;color:#6b7280">Address</td><td>${escapeHtml(addressLine)}</td></tr>` : ""}
         <tr><td style="padding:6px 0;color:#6b7280">Project type</td><td>${escapeHtml(lead.project_type)}</td></tr>
         <tr><td style="padding:6px 0;color:#6b7280">Budget</td><td>${escapeHtml(lead.budget_range)}</td></tr>
       </table>

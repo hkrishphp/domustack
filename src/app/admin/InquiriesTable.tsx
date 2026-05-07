@@ -17,6 +17,10 @@ export type Inquiry = {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  street_address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
 };
 
 const STATUSES = ["new", "contacted", "converted", "closed", "spam"] as const;
@@ -211,6 +215,22 @@ function Row({
             )}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
+                {(inquiry.street_address || inquiry.city || inquiry.zip_code) && (
+                  <div className="mb-5">
+                    <h3 className="text-[12px] font-semibold tracking-wider uppercase text-muted-foreground mb-2">
+                      Address
+                    </h3>
+                    <p className="text-foreground/85 text-[14px] leading-relaxed">
+                      {[
+                        inquiry.street_address,
+                        [inquiry.city, inquiry.state].filter(Boolean).join(", "),
+                        inquiry.zip_code,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                )}
                 <h3 className="text-[12px] font-semibold tracking-wider uppercase text-muted-foreground mb-2">
                   Description
                 </h3>
