@@ -104,6 +104,21 @@ export type Permit = {
   usuallyRequired: boolean;
 };
 
+// Typical project duration in weeks (low, high) per tier — based on
+// industry averages; permitting/lead times can extend the high end.
+const TIMELINE_WEEKS: Record<ProjectType, Record<Tier, [number, number]>> = {
+  bathroom: {
+    basic: [2, 3],
+    mid: [3, 5],
+    premium: [5, 8],
+  },
+  kitchen: {
+    basic: [4, 6],
+    mid: [6, 10],
+    premium: [10, 16],
+  },
+};
+
 const PERMIT_CHECKLIST: Record<ProjectType, Permit[]> = {
   bathroom: [
     { name: "Building Permit", description: "Required if any structural change (moving walls, adding windows, framing).", usuallyRequired: true },
@@ -136,6 +151,8 @@ export type EstimateResult = {
   tierLabel: string;
   inclusions: string[];
   permits: Permit[];
+  timelineLowWeeks: number;
+  timelineHighWeeks: number;
 };
 
 const ROUND_TO = 500;
@@ -154,6 +171,8 @@ export function estimate(input: EstimateInput): EstimateResult {
   const high = round(baseHigh * m);
   const mid = round((low + high) / 2);
 
+  const [tWeeksLow, tWeeksHigh] = TIMELINE_WEEKS[input.projectType][input.tier];
+
   return {
     costLow: low,
     costHigh: high,
@@ -163,6 +182,8 @@ export function estimate(input: EstimateInput): EstimateResult {
     tierLabel: TIER_LABEL[input.tier],
     inclusions: TIER_INCLUSIONS[input.projectType][input.tier],
     permits: PERMIT_CHECKLIST[input.projectType],
+    timelineLowWeeks: tWeeksLow,
+    timelineHighWeeks: tWeeksHigh,
   };
 }
 
