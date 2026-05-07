@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { notifyLeadAction } from "@/app/actions/notify-lead";
 
@@ -177,6 +178,25 @@ export default function ProjectFormV1() {
       };
       w.gtag?.("event", "generate_lead", params);
       w.gtag?.("event", "conversion_event_submit_lead_form", params);
+
+      // PostHog: identify the homeowner + capture the lead event for funnel analysis.
+      try {
+        posthog.identify(email, {
+          email,
+          name,
+          phone,
+          city,
+          state: stateCode,
+          zip_code: zipCode,
+        });
+        posthog.capture("lead_submitted", {
+          ...params,
+          state: stateCode,
+          zip_code: zipCode,
+        });
+      } catch (e) {
+        console.warn("[posthog] capture failed", e);
+      }
 
       setSubmitted(true);
     } catch (err) {
