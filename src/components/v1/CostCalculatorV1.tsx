@@ -23,6 +23,12 @@ const PROJECT_TYPES: { id: ProjectType; label: string; emoji: string }[] = [
   { id: "painting", label: "Painting", emoji: "🎨" },
 ];
 
+const TIERS: { id: Tier; label: string; sub: string }[] = [
+  { id: "basic", label: "Basic", sub: "Builder-grade" },
+  { id: "mid", label: "Mid-Range", sub: "Quality finishes" },
+  { id: "premium", label: "Premium", sub: "Luxury / custom" },
+];
+
 const SIZE_LABEL: Record<ProjectType, { label: string; placeholder: string }> = {
   bathroom: { label: "Room size", placeholder: "50" },
   kitchen:  { label: "Room size", placeholder: "150" },
@@ -40,8 +46,6 @@ export default function CostCalculatorV1() {
   const [zipCode, setZipCode] = useState("");
   const [zipAutofilled, setZipAutofilled] = useState(false);
   const [squareFeet, setSquareFeet] = useState("");
-  const [beforePhoto, setBeforePhoto] = useState<File | null>(null);
-  const [afterPhoto, setAfterPhoto] = useState<File | null>(null);
 
   // Auto-fill ZIP from the visitor's IP on first load (best-effort).
   // Skipped if they've already typed something; failures are silent.
@@ -64,18 +68,8 @@ export default function CostCalculatorV1() {
     return () => {
       cancelled = true;
     };
-    // Run once on mount only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const beforePreview = useMemo(
-    () => (beforePhoto ? URL.createObjectURL(beforePhoto) : null),
-    [beforePhoto]
-  );
-  const afterPreview = useMemo(
-    () => (afterPhoto ? URL.createObjectURL(afterPhoto) : null),
-    [afterPhoto]
-  );
 
   // Live estimate — only when we have enough to compute.
   const result: EstimateResult | null = useMemo(() => {
@@ -91,7 +85,7 @@ export default function CostCalculatorV1() {
 
   const zipShownAsInvalid = zipCode.length > 0 && !isValidUSZip(zipCode);
 
-  // Fire the PostHog event once when the homeowner first reaches a valid result.
+  // Fire PostHog event once when result first becomes valid.
   const trackedRef = useRef(false);
   useEffect(() => {
     if (result && !trackedRef.current) {
@@ -113,22 +107,15 @@ export default function CostCalculatorV1() {
 
   return (
     <section className="py-8 sm:py-12">
-      <div className="mx-auto max-w-[960px] px-4 sm:px-6">
-        {/* Live result panel — pinned at the top so it's always visible */}
-        <ResultPanel
-          result={result}
-          projectType={projectType}
-          hasBothPhotos={Boolean(beforePhoto && afterPhoto)}
-        />
-
-        {/* Form below */}
-        <form className="bg-white border border-border rounded-2xl p-5 sm:p-7 md:p-10 shadow-[0_12px_40px_rgba(15,41,64,0.06)] mt-6">
+      <div className="mx-auto max-w-[1100px] px-4 sm:px-6">
+        {/* Form */}
+        <form className="bg-white border border-border rounded-2xl p-5 sm:p-7 md:p-10 shadow-[0_12px_40px_rgba(15,41,64,0.06)]">
           {/* Project type */}
           <div className="mb-7">
             <label className="block text-[13px] font-semibold text-foreground mb-3">
               What kind of project? <span className="text-accent">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-3 max-w-[420px]">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {PROJECT_TYPES.map((p) => {
                 const active = projectType === p.id;
                 return (
@@ -198,35 +185,60 @@ export default function CostCalculatorV1() {
             </label>
           </div>
 
-          {/* Photos — used to auto-detect quality tier (mid-range default until both uploaded) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <PhotoField
-              label="Current photo (before)"
-              file={beforePhoto}
-              preview={beforePreview}
-              onChange={setBeforePhoto}
-            />
-            <PhotoField
-              label="Inspiration photo (desired look)"
-              file={afterPhoto}
-              preview={afterPreview}
-              onChange={setAfterPhoto}
-            />
+          {/* Quality tier */}
+          <div>
+            <label className="block text-[13px] font-semibold text-foreground mb-3">
+              Quality tier
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {TIERS.map((t) => {
+                const active = tier === t.id;
+                return (
+                  <button
+                    type="button"
+                    key={t.id}
+                    onClick={() => setTier(t.id)}
+                    className={
+                      "px-4 py-4 rounded-xl border text-left transition " +
+                      (active
+                        ? "bg-primary !text-white border-primary shadow-[0_4px_14px_rgba(15,41,64,0.18)]"
+                        : "bg-white text-foreground border-border hover:border-primary/40")
+                    }
+                  >
+                    <div className="font-semibold">{t.label}</div>
+                    <div className={`text-[12px] mt-0.5 ${active ? "text-white/75" : "text-muted-foreground"}`}>
+                      {t.sub}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-
-          <p className="text-xs text-muted-foreground mt-4">
-            Upload both photos and our AI infers the quality tier (Basic / Mid-Range / Premium)
-            from the finishes shown — until then we use a Mid-Range estimate by default.
-          </p>
         </form>
 
-        {/* Detail cards — only when there's a valid result */}
+        {/* Estimate + Permits side-by-side */}
+        {result ? (
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="lg:col-span-3">
+              <ResultPanel result={result} projectType={projectType as ProjectType} />
+            </div>
+            <div className="lg:col-span-2">
+              <PermitsCard result={result} />
+            </div>
+          </div>
+        ) : (
+          <div className="mt-8 bg-secondary/60 border border-border rounded-2xl px-5 sm:px-8 py-6 text-center">
+            <p className="text-[12px] tracking-[0.2em] uppercase font-bold text-muted-foreground mb-2">
+              Live estimate
+            </p>
+            <p className="text-foreground/80 text-[15px]">
+              Pick a project type and enter your ZIP — your estimate &amp; permits checklist appear here automatically.
+            </p>
+          </div>
+        )}
+
         {result && (
-          <div className="mt-8 space-y-6">
-            {(beforePreview || afterPreview) && (
-              <PhotoPreviewRow before={beforePreview} after={afterPreview} />
-            )}
-            <PermitsCard result={result} />
+          <div className="mt-6">
             <CTAFooter />
           </div>
         )}
@@ -238,27 +250,12 @@ export default function CostCalculatorV1() {
 function ResultPanel({
   result,
   projectType,
-  hasBothPhotos,
 }: {
-  result: EstimateResult | null;
-  projectType: ProjectType | "";
-  hasBothPhotos: boolean;
+  result: EstimateResult;
+  projectType: ProjectType;
 }) {
-  if (!result) {
-    return (
-      <div className="bg-secondary/60 border border-border rounded-2xl px-5 sm:px-8 py-6 text-center">
-        <p className="text-[12px] tracking-[0.2em] uppercase font-bold text-muted-foreground mb-2">
-          Live estimate
-        </p>
-        <p className="text-foreground/80 text-[15px]">
-          Pick a project type and enter your ZIP — your estimate updates here automatically.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-primary !text-white rounded-2xl p-5 sm:p-7 md:p-10 shadow-[0_20px_60px_rgba(15,41,64,0.18)] relative overflow-hidden">
+    <div className="bg-primary !text-white rounded-2xl p-5 sm:p-7 md:p-9 shadow-[0_20px_60px_rgba(15,41,64,0.18)] relative overflow-hidden h-full">
       <div
         className="absolute inset-0 opacity-[0.06] pointer-events-none"
         style={{
@@ -267,20 +264,10 @@ function ResultPanel({
         }}
       />
       <div className="relative">
-        <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
-          <p className="text-[#a8c0a4] font-semibold text-[11px] sm:text-[12px] tracking-[0.2em] uppercase">
-            {projectType ? `Estimated ${projectType}` : "Estimated cost"} · {result.tierLabel}
-          </p>
-          <span
-            className={
-              "text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full " +
-              (hasBothPhotos ? "bg-[#a8c0a4]/20 text-[#a8c0a4]" : "bg-white/10 text-white/60")
-            }
-          >
-            {hasBothPhotos ? "From your photos" : "Default tier"}
-          </span>
-        </div>
-        <div className="text-[28px] sm:text-4xl md:text-[44px] font-bold tracking-tight leading-[1.05] mb-4">
+        <p className="text-[#a8c0a4] font-semibold text-[11px] sm:text-[12px] tracking-[0.2em] uppercase mb-2 sm:mb-3">
+          Estimated {projectType} · {result.tierLabel}
+        </p>
+        <div className="text-[26px] sm:text-3xl md:text-[40px] font-bold tracking-tight leading-[1.05] mb-4">
           {formatUSD(result.costLow)} – {formatUSD(result.costHigh)}
         </div>
 
@@ -310,7 +297,7 @@ function ResultPanel({
           </ul>
         </div>
 
-        <p className="mt-6 text-[11px] sm:text-[12px] text-white/60 max-w-[640px]">
+        <p className="mt-6 text-[11px] sm:text-[12px] text-white/60">
           National-average pricing adjusted for your ZIP region and room size.
           Final quotes from contractors will vary based on site conditions and scope.
         </p>
@@ -319,80 +306,9 @@ function ResultPanel({
   );
 }
 
-function PhotoField({
-  label,
-  file,
-  preview,
-  onChange,
-}: {
-  label: string;
-  file: File | null;
-  preview: string | null;
-  onChange: (f: File | null) => void;
-}) {
-  return (
-    <label className="block">
-      <span className="block text-[13px] font-semibold text-foreground mb-1.5">{label}</span>
-      <div className="relative border border-dashed border-border rounded-xl overflow-hidden bg-secondary/20 hover:bg-secondary/40 transition cursor-pointer">
-        {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt={label} className="w-full h-44 sm:h-48 object-cover" />
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-2 px-4 py-10 sm:py-12 text-muted-foreground text-sm">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-            <span>Click to upload</span>
-          </div>
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          className="absolute inset-0 opacity-0 cursor-pointer"
-          onChange={(e) => onChange(e.target.files?.[0] ?? null)}
-        />
-      </div>
-      {file && (
-        <span className="block mt-1.5 text-[12px] text-muted-foreground truncate">{file.name}</span>
-      )}
-    </label>
-  );
-}
-
-function PhotoPreviewRow({ before, after }: { before: string | null; after: string | null }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <PhotoCard label="Current" url={before} />
-      <PhotoCard label="Inspiration" url={after} />
-    </div>
-  );
-}
-
-function PhotoCard({ label, url }: { label: string; url: string | null }) {
-  return (
-    <div className="bg-white border border-border rounded-2xl overflow-hidden">
-      <div className="relative h-48 sm:h-56 bg-secondary">
-        {url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt={label} className="w-full h-full object-cover" />
-        ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-            — no photo —
-          </div>
-        )}
-        <span className="absolute top-3 left-3 bg-black/70 backdrop-blur text-white text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full">
-          {label}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function PermitsCard({ result }: { result: EstimateResult }) {
   return (
-    <div className="bg-white border border-border rounded-2xl p-5 sm:p-7 md:p-10 shadow-[0_8px_30px_rgba(15,41,64,0.05)]">
+    <div className="bg-white border border-border rounded-2xl p-5 sm:p-7 md:p-9 shadow-[0_8px_30px_rgba(15,41,64,0.05)] h-full">
       <p className="text-accent font-semibold text-[11px] sm:text-[12px] tracking-[0.2em] uppercase mb-2 sm:mb-3">
         Permits typically required
       </p>
@@ -436,7 +352,7 @@ function PermitsCard({ result }: { result: EstimateResult }) {
       </ul>
 
       <p className="mt-6 text-[12px] text-muted-foreground border-t border-border pt-5">
-        <strong className="text-foreground">Final word:</strong> permit requirements are set by your <em>local</em> building department and can vary by city. Your contractor will pull the right ones — or contact your municipality&apos;s building / planning office for the official list.
+        <strong className="text-foreground">Final word:</strong> permit requirements are set by your <em>local</em> building department and can vary by city. Your contractor will pull the right ones.
       </p>
     </div>
   );
