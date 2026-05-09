@@ -21,6 +21,7 @@ export type Inquiry = {
   city: string | null;
   state: string | null;
   zip_code: string | null;
+  variant: string | null;
 };
 
 const STATUSES = ["new", "contacted", "converted", "closed", "spam"] as const;
@@ -94,6 +95,7 @@ export default function InquiriesTable({ inquiries }: { inquiries: Inquiry[] }) 
                 <th className="text-left px-4 py-3">Contact</th>
                 <th className="text-left px-4 py-3">Project</th>
                 <th className="text-left px-4 py-3">Budget</th>
+                <th className="text-center px-3 py-3">Page</th>
                 <th className="text-left px-4 py-3">Status</th>
                 <th className="text-right px-4 py-3"></th>
               </tr>
@@ -170,6 +172,27 @@ function Row({
         </td>
         <td className="px-4 py-3 text-foreground/80">{inquiry.project_type}</td>
         <td className="px-4 py-3 text-foreground/80 whitespace-nowrap">{inquiry.budget_range}</td>
+        <td className="px-3 py-3 text-center">
+          {inquiry.variant ? (
+            <span
+              className={
+                "inline-flex items-center justify-center w-7 h-7 rounded-full text-[12px] font-bold " +
+                (inquiry.variant === "A"
+                  ? "bg-blue-50 text-blue-700 border border-blue-200"
+                  : inquiry.variant === "B"
+                  ? "bg-purple-50 text-purple-700 border border-purple-200"
+                  : inquiry.variant === "C"
+                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                  : "bg-gray-50 text-gray-600 border border-gray-200")
+              }
+              title={`Submitted from Variant ${inquiry.variant}`}
+            >
+              {inquiry.variant}
+            </span>
+          ) : (
+            <span className="text-muted-foreground text-[12px]">—</span>
+          )}
+        </td>
         <td className="px-4 py-3">
           <select
             value={inquiry.status}
@@ -207,7 +230,7 @@ function Row({
 
       {expanded && (
         <tr className="border-t border-border bg-secondary/20">
-          <td colSpan={7} className="px-4 py-5">
+          <td colSpan={8} className="px-4 py-5">
             {error && (
               <div className="mb-4 px-3 py-2 rounded border border-red-200 bg-red-50 text-red-800 text-[13px]">
                 {error}

@@ -33,6 +33,7 @@ export type LeadNotification = {
   city?: string;
   state?: string;
   zip_code?: string;
+  variant?: string;
 };
 
 export async function sendLeadNotificationEmail(lead: LeadNotification) {
@@ -46,7 +47,8 @@ export async function sendLeadNotificationEmail(lead: LeadNotification) {
     .filter(Boolean)
     .join(" · ");
 
-  const subject = `New lead: ${lead.full_name} — ${lead.project_type} (${lead.budget_range})`;
+  const variantTag = lead.variant ? ` [V${lead.variant}]` : "";
+  const subject = `New lead${variantTag}: ${lead.full_name} — ${lead.project_type} (${lead.budget_range})`;
   const text = [
     `A new project inquiry was submitted on Domustack.`,
     ``,
@@ -80,6 +82,7 @@ export async function sendLeadNotificationEmail(lead: LeadNotification) {
         ${addressLine ? `<tr><td style="padding:6px 0;color:#6b7280">Address</td><td>${escapeHtml(addressLine)}</td></tr>` : ""}
         <tr><td style="padding:6px 0;color:#6b7280">Project type</td><td>${escapeHtml(lead.project_type)}</td></tr>
         <tr><td style="padding:6px 0;color:#6b7280">Budget</td><td>${escapeHtml(lead.budget_range)}</td></tr>
+        ${lead.variant ? `<tr><td style="padding:6px 0;color:#6b7280">Source page</td><td>Variant ${escapeHtml(lead.variant)}</td></tr>` : ""}
       </table>
 
       <div style="margin-top:18px">

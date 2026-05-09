@@ -149,6 +149,7 @@ export default function QuizHero() {
         city: city.trim(),
         state: stateCode,
         zip_code: zipCode.trim(),
+        variant: "C",
       };
 
       const { error: insertErr } = await supabase

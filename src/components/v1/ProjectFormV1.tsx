@@ -71,7 +71,7 @@ function isValidUSZip(input: string): boolean {
   return /^\d{5}(-\d{4})?$/.test(input.trim());
 }
 
-export default function ProjectFormV1() {
+export default function ProjectFormV1({ variant = "A" }: { variant?: string } = {}) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -155,6 +155,7 @@ export default function ProjectFormV1() {
         city: city.trim(),
         state: stateCode,
         zip_code: zipCode.trim(),
+        variant,
       };
 
       const { error: insertErr } = await supabase

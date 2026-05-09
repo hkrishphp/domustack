@@ -186,6 +186,7 @@ function FormBody({
         budget_range: budget,
         inspiration_images: [] as string[],
         zip_code: zipCode.trim(),
+        variant,
       };
       const { error: insertErr } = await supabase.from("project_inquiries").insert(leadPayload);
       if (insertErr) throw insertErr;
@@ -278,11 +279,11 @@ function FormBody({
             return (
               <button
                 type="button" key={b} onClick={() => setBudget(b)}
-                className="px-3 py-2 rounded-lg text-[12.5px] font-medium border transition !text-white"
+                className="px-3 py-2 rounded-lg text-[12.5px] font-medium border transition"
                 style={
                   active
                     ? { background: accentColor, color: "#fff", borderColor: accentColor }
-                    : { background: "#fff", color: "var(--color-foreground, #1a1f2e)", borderColor: "var(--color-border, #dfe4ec)" }
+                    : { background: "#fff", color: "#1a1f2e", borderColor: "#dfe4ec" }
                 }
               >
                 {b}
