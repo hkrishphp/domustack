@@ -1,15 +1,7 @@
 import type { Metadata } from "next";
-import NavbarV1 from "@/components/v1/NavbarV1";
-import HeroV1 from "@/components/v1/HeroV1";
-import HowItWorksV1 from "@/components/v1/HowItWorksV1";
-import GalleryV1 from "@/components/v1/GalleryV1";
-import MissionV1 from "@/components/v1/MissionV1";
-import ProjectFormV1 from "@/components/v1/ProjectFormV1";
-import PricingStripV1 from "@/components/v1/PricingStripV1";
-import TestimonialsV1 from "@/components/v1/TestimonialsV1";
-import TrustBlockV1 from "@/components/v1/TrustBlockV1";
-import FinalCTAV1 from "@/components/v1/FinalCTAV1";
-import FooterV1 from "@/components/v1/FooterV1";
+import HomeVariantA from "@/components/v1/HomeVariantA";
+import HomeVariantB from "@/components/v1/HomeVariantB";
+import HomeVariantC from "@/components/v1/HomeVariantC";
 
 export const metadata: Metadata = {
   title: "Find Verified Renovation Contractors — Free Quotes in 24 Hours",
@@ -25,22 +17,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return (
-    <div className="theme-craftsman min-h-screen">
-      <NavbarV1 />
-      <main>
-        <HeroV1 />
-        <ProjectFormV1 />
-        <HowItWorksV1 />
-        <GalleryV1 />
-        <MissionV1 />
-        <PricingStripV1 />
-        <TestimonialsV1 />
-        <TrustBlockV1 />
-        <FinalCTAV1 />
-      </main>
-      <FooterV1 />
-    </div>
-  );
+// Local A/B/C testing helper. URL ?v=A|B|C selects a variant; default is A.
+// Real cookie-based bucketing + PostHog Experiment will replace this once
+// the variants are approved.
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ v?: string }>;
+}) {
+  const params = await searchParams;
+  const v = (params.v ?? "A").toUpperCase();
+  if (v === "B") return <HomeVariantB />;
+  if (v === "C") return <HomeVariantC />;
+  return <HomeVariantA />;
 }
