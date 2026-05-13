@@ -7,6 +7,7 @@ import HowItWorksV1 from "@/components/v1/HowItWorksV1";
 import MissionV1 from "@/components/v1/MissionV1";
 import FinalCTAV1 from "@/components/v1/FinalCTAV1";
 import FooterV1 from "@/components/v1/FooterV1";
+import SocialProofTicker from "@/components/v1/SocialProofTicker";
 
 export default function HomeVariantC() {
   return (
@@ -25,6 +26,7 @@ export default function HomeVariantC() {
         <FinalCTAV1 />
       </main>
       <FooterV1 />
+      <SocialProofTicker />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import TestimonialsV1 from "@/components/v1/TestimonialsV1";
 import TrustBlockV1 from "@/components/v1/TrustBlockV1";
 import FinalCTAV1 from "@/components/v1/FinalCTAV1";
 import FooterV1 from "@/components/v1/FooterV1";
+import SocialProofTicker from "@/components/v1/SocialProofTicker";
 
 export default function HomeVariantA() {
   return (
@@ -26,6 +27,7 @@ export default function HomeVariantA() {
         <FinalCTAV1 />
       </main>
       <FooterV1 />
+      <SocialProofTicker />
     </div>
   );
 }

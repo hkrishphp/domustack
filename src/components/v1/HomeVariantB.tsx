@@ -11,6 +11,7 @@ import TrustBlockV1 from "@/components/v1/TrustBlockV1";
 import FinalCTAV1 from "@/components/v1/FinalCTAV1";
 import FooterV1 from "@/components/v1/FooterV1";
 import FloatingLeadForm from "@/components/v1/FloatingLeadForm";
+import SocialProofTicker from "@/components/v1/SocialProofTicker";
 
 // ─── Variant B palette: light slate + plum (Purple Heart tie-in) ──
 const B_BG       = "#f3f1f5";
@@ -157,6 +158,7 @@ export default function HomeVariantB() {
       </main>
       <FooterV1 />
       <FloatingLeadForm variant="B" accentColor={B_PLUM} />
+      <SocialProofTicker />
     </div>
   );
 }
