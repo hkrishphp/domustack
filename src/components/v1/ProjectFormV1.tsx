@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import posthog from "posthog-js";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { notifyLeadAction } from "@/app/actions/notify-lead";
+import { lookupZip } from "@/lib/zip-lookup";
 
 const projectTypes = [
   "Kitchen Remodel",
@@ -83,12 +84,38 @@ export default function ProjectFormV1({ variant = "A" }: { variant?: string } = 
   const [city, setCity] = useState("");
   const [stateCode, setStateCode] = useState("");
   const [zipCode, setZipCode] = useState("");
+  const [cityTouched, setCityTouched] = useState(false);
+  const [stateTouched, setStateTouched] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [zipError, setZipError] = useState<string | null>(null);
+  const [zipLookingUp, setZipLookingUp] = useState(false);
+
+  // Auto-fill city + state from a valid 5-digit ZIP whenever ZIP changes.
+  // Skip a field only if the user manually typed in it (touched flag).
+  useEffect(() => {
+    if (!/^\d{5}$/.test(zipCode)) return;
+    if (cityTouched && stateTouched) return;
+    let cancelled = false;
+    setZipLookingUp(true);
+    lookupZip(zipCode)
+      .then((result) => {
+        if (cancelled) return;
+        if (result) {
+          if (!cityTouched) setCity(result.city);
+          if (!stateTouched) setStateCode(result.state);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setZipLookingUp(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [zipCode, cityTouched, stateTouched]);
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files ? Array.from(e.target.files) : [];
@@ -317,44 +344,23 @@ export default function ProjectFormV1({ variant = "A" }: { variant?: string } = 
               </div>
 
               <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-6 gap-5">
-                <div className="sm:col-span-3">
-                  <Field label="City" required>
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      required
-                      autoComplete="address-level2"
-                      placeholder="Austin"
-                      className={inputClass}
-                    />
-                  </Field>
-                </div>
-
-                <div className="sm:col-span-1">
-                  <Field label="State" required>
-                    <select
-                      value={stateCode}
-                      onChange={(e) => setStateCode(e.target.value)}
-                      required
-                      autoComplete="address-level1"
-                      className={inputClass}
-                    >
-                      <option value="">--</option>
-                      {US_STATES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                  </Field>
-                </div>
-
                 <div className="sm:col-span-2">
-                  <Field label="ZIP code" required hint={zipError ?? undefined} hintIsError={Boolean(zipError)}>
+                  <Field
+                    label="ZIP code"
+                    required
+                    hint={
+                      zipError
+                        ? zipError
+                        : zipLookingUp
+                        ? "Looking up city & state…"
+                        : "We'll auto-fill city & state for you."
+                    }
+                    hintIsError={Boolean(zipError)}
+                  >
                     <input
                       type="text"
                       value={zipCode}
                       onChange={(e) => {
-                        // keep digits + optional one dash, max 10 chars (12345-6789)
                         const v = e.target.value.replace(/[^\d-]/g, "").slice(0, 10);
                         setZipCode(v);
                         if (zipError) setZipError(null);
@@ -367,6 +373,37 @@ export default function ProjectFormV1({ variant = "A" }: { variant?: string } = 
                       aria-invalid={Boolean(zipError)}
                       className={zipError ? inputClassError : inputClass}
                     />
+                  </Field>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <Field label="City" required>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => { setCity(e.target.value); setCityTouched(true); }}
+                      required
+                      autoComplete="address-level2"
+                      placeholder="Austin"
+                      className={inputClass}
+                    />
+                  </Field>
+                </div>
+
+                <div className="sm:col-span-1">
+                  <Field label="State" required>
+                    <select
+                      value={stateCode}
+                      onChange={(e) => { setStateCode(e.target.value); setStateTouched(true); }}
+                      required
+                      autoComplete="address-level1"
+                      className={inputClass}
+                    >
+                      <option value="">--</option>
+                      {US_STATES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
                   </Field>
                 </div>
               </div>

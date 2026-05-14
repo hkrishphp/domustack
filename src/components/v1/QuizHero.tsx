@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import posthog from "posthog-js";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { notifyLeadAction } from "@/app/actions/notify-lead";
+import { lookupZip } from "@/lib/zip-lookup";
 
 // ─── Variant C palette: warm cream + soft gold (distinct from A/B navy+sage) ──
 const C_BG       = "#fbf6ec";
@@ -92,6 +93,8 @@ export default function QuizHero() {
   const [streetAddress, setStreetAddress] = useState("");
   const [city, setCity] = useState("");
   const [stateCode, setStateCode] = useState("");
+  const [cityTouched, setCityTouched] = useState(false);
+  const [stateTouched, setStateTouched] = useState(false);
   const [zipCode, setZipCode] = useState("");
   const [zipAutofilled, setZipAutofilled] = useState(false);
   const [description, setDescription] = useState("");
@@ -122,6 +125,22 @@ export default function QuizHero() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-fill city + state from a valid 5-digit ZIP whenever ZIP changes.
+  // Skip a field only if the user has manually typed in it (touched flag).
+  useEffect(() => {
+    if (!/^\d{5}$/.test(zipCode)) return;
+    if (cityTouched && stateTouched) return;
+    let cancelled = false;
+    lookupZip(zipCode).then((result) => {
+      if (cancelled || !result) return;
+      if (!cityTouched) setCity(result.city);
+      if (!stateTouched) setStateCode(result.state);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [zipCode, cityTouched, stateTouched]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -341,7 +360,7 @@ export default function QuizHero() {
                     <Field label="City">
                       <input
                         type="text" required value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={(e) => { setCity(e.target.value); setCityTouched(true); }}
                         placeholder="Austin"
                         autoComplete="address-level2"
                         className={inputBase}
@@ -353,7 +372,7 @@ export default function QuizHero() {
                     <Field label="State">
                       <select
                         required value={stateCode}
-                        onChange={(e) => setStateCode(e.target.value)}
+                        onChange={(e) => { setStateCode(e.target.value); setStateTouched(true); }}
                         autoComplete="address-level1"
                         className={inputBase}
                         style={inputStyle(false)}
