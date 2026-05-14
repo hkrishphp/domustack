@@ -3,35 +3,43 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PROTECTED_ROUTES = ["/projects", "/messages"];
 
-// ─── Homepage A/B/C bucketing ────────────────────────────────────────────────
+// ─── Homepage A/C bucketing ──────────────────────────────────────────────────
+// Variant B was paused — only A and C rotate to real visitors. Manual override
+// via ?v=B still works for QA (allowed below).
 const VARIANT_COOKIE = "ds_homepage_variant";
-const VARIANTS = ["A", "B", "C"] as const;
-type Variant = (typeof VARIANTS)[number];
+const ACTIVE_VARIANTS = ["A", "C"] as const;
+const ALL_VARIANTS    = ["A", "B", "C"] as const; // override-allowed via ?v=
+type Variant = (typeof ALL_VARIANTS)[number];
 
 function pickVariant(): Variant {
-  // Equal 33/33/34 split. Swap to weighted (e.g., [A,A,B,C]) if you want
-  // to bias toward the control while early in the test.
-  return VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
+  // 50/50 between A and C while B is paused.
+  return ACTIVE_VARIANTS[Math.floor(Math.random() * ACTIVE_VARIANTS.length)];
 }
 
-function isVariant(v: string | undefined): v is Variant {
-  return Boolean(v) && (VARIANTS as readonly string[]).includes(v as string);
+function isActive(v: string | undefined): v is "A" | "C" {
+  return Boolean(v) && (ACTIVE_VARIANTS as readonly string[]).includes(v as string);
+}
+
+function isAnyVariant(v: string | undefined): v is Variant {
+  return Boolean(v) && (ALL_VARIANTS as readonly string[]).includes(v as string);
 }
 
 export async function middleware(request: NextRequest) {
   // ── Homepage A/B/C bucketing (runs before anything else) ────────────────
   if (request.nextUrl.pathname === "/") {
-    // 1) Manual override via ?v= — for QA / stakeholder previews.
-    //    Doesn't write the cookie, so users keep their assigned bucket.
+    // 1) Manual override via ?v= — for QA / stakeholder previews. Allows
+    //    A | B | C even though B isn't in the live rotation. Doesn't write
+    //    the cookie, so users keep their assigned bucket.
     const override = request.nextUrl.searchParams.get("v")?.toUpperCase();
-    if (isVariant(override)) {
+    if (isAnyVariant(override)) {
       return NextResponse.next();
     }
 
     // 2) Returning visitor — read cookie and rewrite to /?v=<variant>.
-    //    Rewrite (not redirect) keeps the URL bar clean: still shows /.
+    //    If their cookie is "B" (from before B was paused), re-bucket them
+    //    into A or C so they don't keep seeing the paused variant.
     const cookieValue = request.cookies.get(VARIANT_COOKIE)?.value?.toUpperCase();
-    if (isVariant(cookieValue)) {
+    if (isActive(cookieValue)) {
       const url = request.nextUrl.clone();
       url.searchParams.set("v", cookieValue);
       return NextResponse.rewrite(url);

@@ -10,6 +10,7 @@ import TrustBlockV1 from "@/components/v1/TrustBlockV1";
 import FinalCTAV1 from "@/components/v1/FinalCTAV1";
 import FooterV1 from "@/components/v1/FooterV1";
 import SocialProofTicker from "@/components/v1/SocialProofTicker";
+import ExitIntentPopup from "@/components/v1/ExitIntentPopup";
 
 export default function HomeVariantA() {
   return (
@@ -28,6 +29,7 @@ export default function HomeVariantA() {
       </main>
       <FooterV1 />
       <SocialProofTicker />
+      <ExitIntentPopup variant="A" />
     </div>
   );
 }
