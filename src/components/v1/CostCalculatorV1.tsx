@@ -44,7 +44,10 @@ function isValidUSZip(input: string): boolean {
 }
 
 export default function CostCalculatorV1() {
-  const [projectType, setProjectType] = useState<ProjectType | "">("");
+  // Default to Kitchen so the moment the page loads (with auto-detected ZIP),
+  // a real cost estimate appears instead of an empty placeholder. User can
+  // click another project chip to switch — it updates instantly.
+  const [projectType, setProjectType] = useState<ProjectType | "">("kitchen");
   const [tier, setTier] = useState<Tier>("mid"); // default Mid-Range
   const [zipCode, setZipCode] = useState("");
   const [zipAutofilled, setZipAutofilled] = useState(false);
@@ -181,7 +184,7 @@ export default function CostCalculatorV1() {
                 }}
                 inputMode="numeric"
                 autoComplete="postal-code"
-                placeholder="78701"
+                placeholder="e.g. 78701"
                 className={zipShownAsInvalid ? inputClassError : inputClass}
               />
               {zipShownAsInvalid ? (
@@ -222,7 +225,7 @@ export default function CostCalculatorV1() {
                   const n = Math.min(Number(digits), max);
                   setSquareFeet(String(n));
                 }}
-                placeholder={projectType ? SIZE_INFO[projectType].placeholder : "50"}
+                placeholder={projectType ? `e.g. ${SIZE_INFO[projectType].placeholder}` : "e.g. 50"}
                 className={inputClass}
               />
               {projectType && (
@@ -281,7 +284,13 @@ export default function CostCalculatorV1() {
               Live estimate
             </p>
             <p className="text-foreground/80 text-[15px]">
-              Pick a project type and enter your ZIP — your estimate &amp; permits checklist appear here automatically.
+              {!projectType && !isValidUSZip(zipCode)
+                ? "Pick a project type and enter your ZIP — your estimate & permits checklist appear here automatically."
+                : !projectType
+                ? "Almost there — pick a project type above (Bathroom, Kitchen, Roofing, or Painting) to see your estimate."
+                : !isValidUSZip(zipCode)
+                ? "Almost there — enter your 5-digit US ZIP code to see your estimate."
+                : "Calculating…"}
             </p>
           </div>
         )}

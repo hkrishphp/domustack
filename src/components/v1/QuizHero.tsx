@@ -5,6 +5,22 @@ import posthog from "posthog-js";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { notifyLeadAction } from "@/app/actions/notify-lead";
 import { lookupZip } from "@/lib/zip-lookup";
+import {
+  estimate,
+  formatUSD,
+  type EstimateResult,
+  type ProjectType,
+} from "@/lib/cost-estimator";
+
+// Map the lead-form project labels onto the cost-estimator's project types.
+// Anything not in the map (e.g. "Whole Home Renovation", "Other") just shows
+// the regular "Thanks!" without a cost reveal.
+const PROJECT_LABEL_TO_TYPE: Record<string, ProjectType> = {
+  "Kitchen Remodel": "kitchen",
+  "Bathroom Remodel": "bathroom",
+  "Roofing": "roofing",
+  "Painting": "painting",
+};
 
 // ─── Variant C palette: warm cream + soft gold (distinct from A/B navy+sage) ──
 const C_BG       = "#fbf6ec";
@@ -101,6 +117,7 @@ export default function QuizHero() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [estimateResult, setEstimateResult] = useState<EstimateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -195,6 +212,18 @@ export default function QuizHero() {
 
       try { sessionStorage.setItem("ds_lead_submitted", "1"); } catch { /* noop */ }
 
+      // If the project is one we can estimate, compute the cost reveal.
+      const ptype = PROJECT_LABEL_TO_TYPE[projectType];
+      if (ptype) {
+        try {
+          setEstimateResult(
+            estimate({ projectType: ptype, tier: "mid", zipCode: zipCode.trim() })
+          );
+        } catch {
+          /* if estimate fails we just skip the reveal */
+        }
+      }
+
       setSubmitted(true);
     } catch (err) {
       setError(
@@ -245,24 +274,119 @@ export default function QuizHero() {
         </div>
 
         {submitted ? (
-          <div
-            className="rounded-2xl p-8 text-center shadow-[0_30px_80px_rgba(42,31,23,0.12)]"
-            style={{ background: C_CARD_BG, border: `1px solid ${C_BORDER}` }}
-          >
+          <div className="space-y-5">
+            {/* ── Cost estimate reveal (only for projects we can estimate) ── */}
+            {estimateResult && (
+              <div
+                className="rounded-2xl p-6 sm:p-8 shadow-[0_30px_80px_rgba(42,31,23,0.12)]"
+                style={{ background: C_CARD_BG, border: `1px solid ${C_BORDER}` }}
+              >
+                <p className="font-semibold text-[12px] tracking-[0.2em] uppercase mb-2" style={{ color: C_GOLD_DK }}>
+                  Your estimate · {estimateResult.tierLabel}
+                </p>
+                <div className="text-[28px] sm:text-4xl md:text-[44px] font-bold tracking-tight mb-3 leading-none" style={{ color: C_INK }}>
+                  {formatUSD(estimateResult.costLow)} – {formatUSD(estimateResult.costHigh)}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-[13px] sm:text-[14px] mb-5" style={{ color: C_INK_SOFT }}>
+                  <span>
+                    Midpoint: <strong style={{ color: C_INK }}>{formatUSD(estimateResult.costMid)}</strong>
+                  </span>
+                  <span>
+                    Typical timeline:{" "}
+                    <strong style={{ color: C_INK }}>
+                      {estimateResult.timelineLowWeeks}–{estimateResult.timelineHighWeeks} weeks
+                    </strong>
+                  </span>
+                </div>
+
+                <div className="border-t pt-5" style={{ borderColor: C_BORDER }}>
+                  <p className="text-[11px] tracking-[0.15em] uppercase font-bold mb-2" style={{ color: C_INK_SOFT }}>
+                    What this tier typically includes
+                  </p>
+                  <ul className="space-y-1.5">
+                    {estimateResult.inclusions.map((line) => (
+                      <li key={line} className="flex gap-2 text-[14px]" style={{ color: C_INK }}>
+                        <span className="mt-2 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: C_GOLD }} />
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* ── Permits checklist ── */}
+            {estimateResult && (
+              <div
+                className="rounded-2xl p-6 sm:p-8 shadow-[0_30px_80px_rgba(42,31,23,0.12)]"
+                style={{ background: C_CARD_BG, border: `1px solid ${C_BORDER}` }}
+              >
+                <p className="font-semibold text-[12px] tracking-[0.2em] uppercase mb-2" style={{ color: C_GOLD_DK }}>
+                  Permits typically required
+                </p>
+                <h3 className="text-xl font-bold mb-4 tracking-tight" style={{ color: C_INK }}>
+                  Permits &amp; inspections
+                </h3>
+                <ul className="space-y-3.5">
+                  {estimateResult.permits.map((p) => (
+                    <li key={p.name} className="flex gap-3">
+                      <span
+                        className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-[12px] font-bold"
+                        style={
+                          p.usuallyRequired
+                            ? { background: `${C_GOLD}26`, color: C_GOLD_DK }
+                            : { background: "#f1ece3", color: C_INK_SOFT }
+                        }
+                      >
+                        {p.usuallyRequired ? "✓" : "?"}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="font-semibold text-[14.5px]" style={{ color: C_INK }}>{p.name}</h4>
+                          <span
+                            className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase"
+                            style={
+                              p.usuallyRequired
+                                ? { background: `${C_GOLD}1a`, color: C_GOLD_DK }
+                                : { background: "#f1ece3", color: C_INK_SOFT }
+                            }
+                          >
+                            {p.usuallyRequired ? "Usually required" : "Sometimes required"}
+                          </span>
+                        </div>
+                        <p className="text-[13.5px] leading-relaxed mt-1" style={{ color: C_INK_SOFT }}>
+                          {p.description}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-5 text-[12px] border-t pt-4" style={{ color: C_INK_SOFT, borderColor: C_BORDER }}>
+                  <strong style={{ color: C_INK }}>Final word:</strong> permit requirements are set by your local building department. Your contractor will pull the right ones.
+                </p>
+              </div>
+            )}
+
+            {/* ── Confirmation ── */}
             <div
-              className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"
-              style={{ background: "rgba(47,133,90,0.1)", color: "#2f855a" }}
+              className="rounded-2xl p-6 sm:p-7 text-center shadow-[0_30px_80px_rgba(42,31,23,0.12)]"
+              style={{ background: C_CARD_BG, border: `1px solid ${C_BORDER}` }}
             >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
+              <div
+                className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-3"
+                style={{ background: "rgba(47,133,90,0.1)", color: "#2f855a" }}
+              >
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: C_INK }}>
+                You&apos;re matched, {name}!
+              </h3>
+              <p style={{ color: C_INK_SOFT }}>
+                Up to 4 verified contractors near {zipCode} will reach out within 24 hours with detailed quotes.
+              </p>
             </div>
-            <h3 className="text-2xl font-bold mb-2" style={{ color: C_INK }}>
-              Thanks, {name}!
-            </h3>
-            <p style={{ color: C_INK_SOFT }}>
-              We&apos;ve received your project. Up to 4 verified contractors near {zipCode} will reach out within 24 hours.
-            </p>
           </div>
         ) : (
           <form
