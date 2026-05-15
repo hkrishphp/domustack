@@ -226,6 +226,9 @@ export default function ProjectFormV1({ variant = "A" }: { variant?: string } = 
         console.warn("[posthog] capture failed", e);
       }
 
+      // Tell the exit-intent popup not to bother this visitor — they're done.
+      try { sessionStorage.setItem("ds_lead_submitted", "1"); } catch { /* noop */ }
+
       setSubmitted(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Submission failed.";

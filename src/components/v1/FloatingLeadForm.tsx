@@ -202,6 +202,8 @@ function FormBody({
         posthog.capture("lead_submitted", { ...params, variant, source: "floating_form" });
       } catch { /* noop */ }
 
+      try { sessionStorage.setItem("ds_lead_submitted", "1"); } catch { /* noop */ }
+
       setSubmitted(true);
       onDone();
     } catch (err) {

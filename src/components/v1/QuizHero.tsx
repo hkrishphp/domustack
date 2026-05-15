@@ -193,6 +193,8 @@ export default function QuizHero() {
         posthog.capture("lead_submitted", { ...params, variant: "C", source: "lead_form_warm" });
       } catch { /* analytics never breaks the page */ }
 
+      try { sessionStorage.setItem("ds_lead_submitted", "1"); } catch { /* noop */ }
+
       setSubmitted(true);
     } catch (err) {
       setError(

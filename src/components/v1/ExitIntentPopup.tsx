@@ -6,9 +6,9 @@ import { subscribeToCheatsheetAction } from "@/app/actions/subscribe-cheatsheet"
 
 const SHOWN_KEY = "ds_exit_popup_seen";          // sessionStorage — show at most once per tab session
 const DISMISSED_KEY = "ds_exit_popup_dismissed"; // localStorage — dismissed for 7 days
+const LEAD_SUBMITTED_KEY = "ds_lead_submitted";  // sessionStorage — set by all 3 lead forms on success
 const DISMISS_DAYS = 7;
-const MOBILE_INACTIVITY_MS = 25_000;             // mobile fallback: fire after 25s of inactivity
-const ARM_DELAY_MS = 6_000;                      // never fire in the first 6 sec of pageload
+const ARM_DELAY_MS = 90_000;                     // 90 seconds — let visitors browse before we ask
 
 export default function ExitIntentPopup({ variant = "" }: { variant?: string }) {
   const [open, setOpen] = useState(false);
@@ -32,25 +32,32 @@ export default function ExitIntentPopup({ variant = "" }: { variant?: string }) 
       .catch(() => {});
   }, []);
 
-  // ─── Decide whether to arm at all (respect dismissal cookies) ──────────
+  // ─── Decide whether to arm at all ──────────────────────────────────────
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Already shown this tab session.
     if (sessionStorage.getItem(SHOWN_KEY) === "1") return;
 
+    // Already submitted the lead form — never bother them with the popup.
+    if (sessionStorage.getItem(LEAD_SUBMITTED_KEY) === "1") return;
+
+    // Dismissed in the last 7 days — respect that.
     const dismissedAt = localStorage.getItem(DISMISSED_KEY);
     if (dismissedAt) {
       const ageMs = Date.now() - Number(dismissedAt);
       if (ageMs < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
     }
 
-    // Wait ARM_DELAY_MS before listening so we don't fire on a quick bounce.
+    // Wait ARM_DELAY_MS so the visitor can read the page first.
     const armTimer = window.setTimeout(() => {
       armedRef.current = true;
     }, ARM_DELAY_MS);
 
     function trigger() {
       if (!armedRef.current) return;
+      // Re-check at trigger time too — they may have submitted in the last 90s.
+      if (sessionStorage.getItem(LEAD_SUBMITTED_KEY) === "1") return;
       armedRef.current = false;
       sessionStorage.setItem(SHOWN_KEY, "1");
       setOpen(true);
@@ -59,23 +66,15 @@ export default function ExitIntentPopup({ variant = "" }: { variant?: string }) 
       } catch { /* noop */ }
     }
 
-    // Desktop: mouse leaves the top of the viewport
+    // Desktop exit signal: mouse leaves the top of the viewport (toward
+    // the close-tab / address bar).
     function onMouseLeave(e: MouseEvent) {
       if (e.clientY <= 0) trigger();
     }
     document.addEventListener("mouseleave", onMouseLeave);
 
-    // Mobile: trigger after N seconds of inactivity (no scroll, touch, key)
-    let inactivityTimer: number | undefined;
-    function resetInactivity() {
-      if (inactivityTimer) clearTimeout(inactivityTimer);
-      inactivityTimer = window.setTimeout(trigger, MOBILE_INACTIVITY_MS);
-    }
-    resetInactivity();
-    const events = ["scroll", "touchstart", "keydown", "click"] as const;
-    events.forEach((ev) => window.addEventListener(ev, resetInactivity, { passive: true }));
-
-    // Also: if the visitor switches tabs (mobile back gesture often fires this)
+    // Cross-platform exit signal: visitor switches tabs / apps (mobile back
+    // gesture or desktop alt-tab usually fires this).
     function onVisibility() {
       if (document.visibilityState === "hidden") trigger();
     }
@@ -83,10 +82,8 @@ export default function ExitIntentPopup({ variant = "" }: { variant?: string }) 
 
     return () => {
       clearTimeout(armTimer);
-      if (inactivityTimer) clearTimeout(inactivityTimer);
       document.removeEventListener("mouseleave", onMouseLeave);
       document.removeEventListener("visibilitychange", onVisibility);
-      events.forEach((ev) => window.removeEventListener(ev, resetInactivity));
     };
   }, [variant]);
 
